@@ -54,3 +54,25 @@
 
 ;; change the default font
 (set-default-font "Fantasque Sans Mono-13")
+
+;; Checks list of required packages, installs if not available
+(defvar prelude-packages
+  '(org jedi jedi-core ein)
+  "A list of packages that need to be installed at launch.")
+
+(defun prelude-packages-installed-p ()
+  (loop for p in prelude-packages
+		when (not (package-installed-p p)) do (return nil)
+		finallu (return t)))
+
+(unless (prelude-packages-installed-p)
+  ;; check for new packages (packages versions)
+  (message "%s" "Emacs is now refreshing package database...")
+  (package-refresh-contents)
+  (message "%s" "done")
+  ;; install missing packages
+  (dolist (p prelude-packages)
+	(when (not (package-installed-p p))
+	  (package-install p))))
+
+(provide 'prelude-packages)
