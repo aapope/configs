@@ -26,12 +26,14 @@
 
 
 ;; for non-terminal-based emacs
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+(defun load-gui-options ()
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (load-theme 'tango-dark)
+  (set-default-font "Fantasque Sans Mono-13"))
 
-;; set visual options
-(load-theme 'tango-dark)
-(set-default-font "Fantasque Sans Mono-13")
+(if (display-graphic-p)
+	(load-gui-options))
 
 ;; set package manager archives
 (require 'package)
@@ -80,3 +82,5 @@
 (add-hook 'python-mode-hook 'jedi:setup)
 ;; jedi for ipython mode
 (add-hook 'ein:connect-mode-hook 'ein:jedi-setup)
+
+(print window-system)
