@@ -56,6 +56,7 @@
 (set-default-font "Fantasque Sans Mono-13")
 
 ;; Checks list of required packages, installs if not available
+(require 'cl)
 (defvar prelude-packages
   '(org jedi jedi-core ein)
   "A list of packages that need to be installed at launch.")
@@ -63,7 +64,7 @@
 (defun prelude-packages-installed-p ()
   (loop for p in prelude-packages
 		when (not (package-installed-p p)) do (return nil)
-		finallu (return t)))
+		finally (return t)))
 
 (unless (prelude-packages-installed-p)
   ;; check for new packages (packages versions)
@@ -76,3 +77,4 @@
 	  (package-install p))))
 
 (provide 'prelude-packages)
+;; end package updates
