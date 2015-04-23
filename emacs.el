@@ -1,4 +1,3 @@
-(put 'upcase-region 'disabled nil)
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -13,32 +12,40 @@
  )
 
 ;; set custom key codes
+(put 'upcase-region 'disabled nil)
 (global-set-key "\C-h" 'backward-delete-char)
 (global-set-key "\C-w" 'backward-kill-word)
 (global-set-key "\C-x\C-k" 'kill-region)
 (global-set-key "\C-c\C-k" 'kill-region)
 
-;; remove backup files
+;; remove backup files because I hate them
 (setq make-backup-files nil)
 
 ;; wrap lines
 (global-visual-line-mode 1)
 
+;; code folding
+(if (>= emacs-major-version 24)
+	(add-hook 'prog-mode-hook #'hs-minor-mode)
+  (add-hook 'python-mode-hook #'hs-minor-mode))
+
 
 ;; for non-terminal-based emacs:
 ;; remove tool bars, set theme and font,
 ;; and set background transparency
-(defun load-gui-options ()
+(defun load-gui-settings ()
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (load-theme 'tango-dark)
-  (set-default-font "Fantasque Sans Mono-13"))
+  (set-default-font "Fantasque Sans Mono-13")
+  ;; semi-transparent background
+  (set-frame-parameter (selected-frame) 'alpha '(85 50))
+  (add-to-list 'default-frame-alist '(alpha 85 50)))
+
 
 (if (display-graphic-p)
-	(load-gui-options))
+	(load-gui-settings))
 
-(set-frame-parameter (selected-frame) 'alpha '(85 50))
-(add-to-list 'default-frame-alist '(alpha 85 50))
 
 
 
