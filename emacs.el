@@ -25,7 +25,9 @@
 (global-visual-line-mode 1)
 
 
-;; for non-terminal-based emacs
+;; for non-terminal-based emacs:
+;; remove tool bars, set theme and font,
+;; and set background transparency
 (defun load-gui-options ()
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
@@ -34,6 +36,11 @@
 
 (if (display-graphic-p)
 	(load-gui-options))
+
+(set-frame-parameter (selected-frame) 'alpha '(85 50))
+(add-to-list 'default-frame-alist '(alpha 85 50))
+
+
 
 ;; if we have a package manager, install default
 ;; packages and customize
@@ -79,8 +86,36 @@
    'org-babel-load-languages
    '((python . t)
 	 (java . t)))
+
+  ;; use orgstruct++ minor mode in python code
+  ;; useful for extended documentation sections
+  ;; if emacs major mode is >= 24, turn on for all
+  ;; programming modes
+  (if (>= emacs-major-version 24)
+	  (add-hook 'prog-mode-hook #'orgstruct++-mode)
+	(add-hook 'python-mode-hook #'orgstruct++-mode))
   
   ;; jedi for python mode
   (add-hook 'python-mode-hook 'jedi:setup)
   ;; jedi for ipython mode
   (add-hook 'ein:connect-mode-hook 'ein:jedi-setup))
+;; end package management
+
+;; custom commands
+(defun swap-buffers ()
+  "Move the current buffer into the next window, and vice versa."
+  (interactive)
+  (let* ((this (selected-window))
+		 (other (next-window))
+		 (this-buffer (window-buffer this))
+		 (other-buffer (window-buffer other)))
+	(set-window-buffer other this-buffer)
+	(set-window-buffer this other-buffer)))
+
+;; (defun promote-buffer ()
+;;   (interactive)
+;;   (let* ((this (selected-window))
+;; 		 (other (next-window))
+;; 		 (this-buffer (window-buffer this)))
+;; 	(set-window-buffer other this-buffer)
+;; 	(set-window-buffer this previous-buffer)))
