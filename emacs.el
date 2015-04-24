@@ -47,8 +47,6 @@
 	(load-gui-settings))
 
 
-
-
 ;; if we have a package manager, install default
 ;; packages and customize
 (when (require 'package nil 'noerror)
