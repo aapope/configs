@@ -124,3 +124,15 @@
 ;; 		 (this-buffer (window-buffer this)))
 ;; 	(set-window-buffer other this-buffer)
 ;; 	(set-window-buffer this previous-buffer)))
+
+;; use default C-l binding to clear buffer
+;; in eshell
+(defun eshell-clear-buffer()
+  "Clear terminal"
+  (interactive)
+  (let ((inhibit-read-only t))
+	(erase-buffer)
+	(eshell-send-input)))
+(add-hook 'eshell-mode-hook
+		  '(lambda()
+			 (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
