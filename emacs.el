@@ -18,6 +18,10 @@
 (global-set-key "\C-x\C-k" 'kill-region)
 (global-set-key "\C-c\C-k" 'kill-region)
 
+;; add default markdown mode extensions
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+  
+
 ;; remove backup files because I hate them
 (setq make-backup-files nil)
 
