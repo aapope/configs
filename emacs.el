@@ -43,8 +43,8 @@
   (load-theme 'tango-dark)
   (set-default-font "Fantasque Sans Mono-13")
   ;; semi-transparent background
-  (set-frame-parameter (selected-frame) 'alpha '(85 50))
-  (add-to-list 'default-frame-alist '(alpha 85 50)))
+  (set-frame-parameter (selected-frame) 'alpha '(85 85))
+  (add-to-list 'default-frame-alist '(alpha 85 85)))
 
 
 (if (display-graphic-p)
