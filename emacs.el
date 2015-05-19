@@ -140,3 +140,9 @@
 (add-hook 'eshell-mode-hook
 		  '(lambda()
 			 (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
+
+;; eshell aliases
+(defun eshell/emacs (file)
+  (find-file file))
+(defun eshell/open (file)
+  (find-file-other-window (file))
