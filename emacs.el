@@ -1,16 +1,3 @@
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(tab-width 4))
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- )
-
 ;; set custom key codes
 (put 'upcase-region 'disabled nil)
 (global-set-key "\C-h" 'backward-delete-char)
@@ -65,7 +52,7 @@
   ;; checks list of required packages, installs if not available
   (require 'cl)
   (defvar prelude-packages
-	'(org jedi jedi-core ein)
+	'(org jedi jedi-core ein with-editor)
 	"A list of packages that need to be installed at launch.")
   
   (defun prelude-packages-installed-p ()
@@ -107,7 +94,10 @@
   ;; jedi for python mode
   (add-hook 'python-mode-hook 'jedi:setup)
   ;; jedi for ipython mode
-  (add-hook 'ein:connect-mode-hook 'ein:jedi-setup))
+  (add-hook 'ein:connect-mode-hook 'ein:jedi-setup)
+
+  ;; with-editor
+  (add-hook 'eshell-mode-hook 'with-editor-export-editor))
 ;; end package management
 
 ;; custom commands
@@ -145,4 +135,4 @@
 (defun eshell/emacs (file)
   (find-file file))
 (defun eshell/open (file)
-  (find-file-other-window (file))
+  (find-file-other-window file))
