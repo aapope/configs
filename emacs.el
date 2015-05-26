@@ -52,7 +52,7 @@
   ;; checks list of required packages, installs if not available
   (require 'cl)
   (defvar prelude-packages
-	'(org jedi jedi-core ein with-editor)
+	'(org jedi jedi-core ein with-editor ess)
 	"A list of packages that need to be installed at launch.")
   
   (defun prelude-packages-installed-p ()
