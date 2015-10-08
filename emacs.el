@@ -136,3 +136,9 @@
   (find-file file))
 (defun eshell/open (file)
   (find-file-other-window file))
+
+;; move to middle of current line
+(defun middle-of-line ()
+  "Put cursor at middle point of the line."
+  (interactive)
+  (goto-char (/ (+ (point-at-bol) (point-at-eol)) 2)))
