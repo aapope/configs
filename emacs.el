@@ -4,6 +4,8 @@
 (global-set-key "\C-w" 'backward-kill-word)
 (global-set-key "\C-x\C-k" 'kill-region)
 (global-set-key "\C-c\C-k" 'kill-region)
+(add-hook 'python-mode-hook '(lambda ()
+  (local-set-key (kbd "RET") 'newline-and-indent)))
 
 ;; add default markdown mode extensions
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
@@ -60,15 +62,16 @@
 		  when (not (package-installed-p p)) do (return nil)
 		  finally (return t)))
   
-  (unless (prelude-packages-installed-p)
+  (if (>= emacs-minor-version 4)
+      (unless (prelude-packages-installed-p)
 	;; check for new packages (packages versions)
 	(message "%s" "Emacs is now refreshing package database...")
 	(package-refresh-contents)
 	(message "%s" "done")
 	;; install missing packages
 	(dolist (p prelude-packages)
-	(when (not (package-installed-p p))
-	  (package-install p))))
+	  (when (not (package-installed-p p))
+	    (package-install p)))))
 
   (provide 'prelude-packages)
   ;; end package installs
@@ -97,7 +100,8 @@
   (add-hook 'ein:connect-mode-hook 'ein:jedi-setup)
 
   ;; with-editor
-  (add-hook 'eshell-mode-hook 'with-editor-export-editor))
+  ;; (add-hook 'eshell-mode-hook 'with-editor-export-editor)
+  )
 ;; end package management
 
 ;; custom commands
