@@ -146,3 +146,7 @@
   "Put cursor at middle point of the line."
   (interactive)
   (goto-char (/ (+ (point-at-bol) (point-at-eol)) 2)))
+
+(defun go-to-column (column)
+  (interactive "nColumn: ")
+  (move-to-column column t))
