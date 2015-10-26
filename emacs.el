@@ -54,7 +54,7 @@
   ;; checks list of required packages, installs if not available
   (require 'cl)
   (defvar prelude-packages
-	'(org jedi jedi-core ein with-editor ess)
+	'(org jedi jedi-core ein with-editor ess ido)
 	"A list of packages that need to be installed at launch.")
   
   (defun prelude-packages-installed-p ()
@@ -84,20 +84,26 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python . t)
-	 (java . t)))
+     (java . t)))
 
   ;; use orgstruct++ minor mode in python code
   ;; useful for extended documentation sections
   ;; if emacs major mode is >= 24, turn on for all
   ;; programming modes
   (if (>= emacs-major-version 24)
-	  (add-hook 'prog-mode-hook #'orgstruct++-mode)
-	(add-hook 'python-mode-hook #'orgstruct++-mode))
+      (add-hook 'prog-mode-hook #'orgstruct++-mode)
+    (add-hook 'python-mode-hook #'orgstruct++-mode))
   
   ;; jedi for python mode
   (add-hook 'python-mode-hook 'jedi:setup)
   ;; jedi for ipython mode
   (add-hook 'ein:connect-mode-hook 'ein:jedi-setup)
+
+  ;; ido mode
+  (setq ido-enable-flex-matching t)
+  (setq ido-everywhere t)
+  (setq ido-file-extension-order '(".py", ".txt", ".org"))
+  (ido-mode t)
 
   ;; with-editor
   ;; (add-hook 'eshell-mode-hook 'with-editor-export-editor)
