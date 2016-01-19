@@ -22,8 +22,9 @@
 
 ;; code folding
 (if (>= emacs-major-version 24)
-	(add-hook 'prog-mode-hook #'hs-minor-mode)
-  (add-hook 'python-mode-hook #'hs-minor-mode))
+    (add-hook 'prog-mode-hook #'hs-minor-mode)
+  (add-hook 'python-mode-hook #'hs-minor-mode)
+  )
 
 
 ;; for non-terminal-based emacs:
@@ -57,7 +58,7 @@
   ;; checks list of required packages, installs if not available
   (require 'cl)
   (defvar prelude-packages
-	'(org jedi jedi-core ein with-editor ess ido ein)
+	'(org jedi jedi-core ein with-editor ess ido)
 	"A list of packages that need to be installed at launch.")
   
   (defun prelude-packages-installed-p ()
@@ -109,10 +110,11 @@
   (ido-mode t)
 
   ;; with-editor
-  ;; (add-hook 'eshell-mode-hook 'with-editor-export-editor)
+  (add-hook 'eshell-mode-hook 'with-editor-export-editor)
 
   ;; ein
   (setq ein:notebook-modes '(ein:notebook-multilang-mode))
+  (add-hook 'ein:connect-mode-hook 'ein:jedi-setup)
   )
 ;; end package management
 
