@@ -84,6 +84,10 @@
   (global-set-key "\C-cl" 'org-store-link)
   (global-set-key "\C-ca" 'org-agenda)
   (global-set-key "\C-cb" 'org-iswitchb)
+
+  ;; org-mode agenda files
+  (setq org-agenda-files (quote ("/ssh:andrewpope@andrewapope.com:~/orgs")))
+  
   ;; enable python for in-buffer evaluation
   (org-babel-do-load-languages
    'org-babel-load-languages
