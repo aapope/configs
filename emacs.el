@@ -7,6 +7,9 @@
 (add-hook 'python-mode-hook '(lambda ()
   (local-set-key (kbd "RET") 'newline-and-indent)))
 
+;;set custom variables
+(custom-set-variables
+ '(tramp-default-method "ssh"))
 ;; add default markdown mode extensions
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
   
@@ -54,7 +57,7 @@
   ;; checks list of required packages, installs if not available
   (require 'cl)
   (defvar prelude-packages
-	'(org jedi jedi-core ein with-editor ess ido)
+	'(org jedi jedi-core ein with-editor ess ido ein)
 	"A list of packages that need to be installed at launch.")
   
   (defun prelude-packages-installed-p ()
@@ -107,6 +110,9 @@
 
   ;; with-editor
   ;; (add-hook 'eshell-mode-hook 'with-editor-export-editor)
+
+  ;; ein
+  (setq ein:notebook-modes '(ein:notebook-multilang-mode))
   )
 ;; end package management
 
@@ -156,3 +162,8 @@
 (defun go-to-column (column)
   (interactive "nColumn: ")
   (move-to-column column t))
+
+(defun crontab-e ()
+  (interactive)
+  ;; requires with-editor package
+  (with-editor-async-shell-command "crontab -e"))
