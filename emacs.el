@@ -86,7 +86,7 @@
   (global-set-key "\C-cb" 'org-iswitchb)
 
   ;; org-mode agenda files
-  (setq org-agenda-files (quote ("/ssh:andrewpope@andrewapope.com:~/orgs")))
+  (setq org-agenda-files (quote ("/ssh:apope@andrewapope.com:~/orgs")))
   
   ;; enable python for in-buffer evaluation
   (org-babel-do-load-languages
