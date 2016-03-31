@@ -86,7 +86,15 @@
   (global-set-key "\C-cb" 'org-iswitchb)
 
   ;; org-mode agenda files
-  (setq org-agenda-files (quote ("/ssh:andrewpope@andrewapope.com:~/orgs")))
+  (setq org-agenda-files (quote ("/ssh:apope@andrewapope.com:~/orgs")))
+  (setq org-todo-keywords
+	'((sequence "TODO(t)" "|" "DONE(d!)")
+	  (sequence "BLOCKED(b@)")
+	  (sequence "|" "CANCELED(c@)")
+	  (sequence "URGENT(u!)")))
+  (setq org-todo-keyword-faces
+	'(("TODO" . "orange") ("BLOCKED" . "yellow") ("CANCELED" . "green")
+	  ("DONE" . "green") ("URGENT" . "red")))
   
   ;; enable python for in-buffer evaluation
   (org-babel-do-load-languages
@@ -173,3 +181,6 @@
   (interactive)
   ;; requires with-editor package
   (with-editor-async-shell-command "crontab -e"))
+
+;; unset system proxy, for connect with ein
+(setenv "http_proxy" "")
