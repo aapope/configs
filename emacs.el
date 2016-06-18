@@ -4,14 +4,18 @@
 (global-set-key "\C-w" 'backward-kill-word)
 (global-set-key "\C-x\C-k" 'kill-region)
 (global-set-key "\C-c\C-k" 'kill-region)
+(setq-default indent-tabs-mode nil)
 
 ;; python settings
 (add-hook 'python-mode-hook '(lambda ()
   (local-set-key (kbd "RET") 'newline-and-indent)))
 
 ;;set custom variables
-(custom-set-variables
- '(tramp-default-method "ssh"))
+(if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
+    (custom-set-variables
+     '(tramp-default-method "plink"))
+  (custom-set-variables
+   '(tramp-default-method "ssh")))
 
 ;; add default markdown mode extensions
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
@@ -85,17 +89,38 @@
     (global-set-key "\C-cl" 'org-store-link)
     (global-set-key "\C-ca" 'org-agenda)
     (global-set-key "\C-cb" 'org-iswitchb)
+
+    ;; org-mode agenda files
+    ;; Set protocol based on OS type
+    ;; Only setup function, make emacs ask.
+    (defun org-load-files ()
+      (interactive)
+      (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
+          (setq org-agenda-files (quote ("/plink:apope@andrewapope.com:~/orgs")))
+        (setq org-agenda-files (quote ("/ssh:apope@andrewapope.com:~/orgs")))))
     
     ;; org-mode agenda files
     (setq org-agenda-files (quote ("/ssh:apope@andrewapope.com:~/orgs")))
     (setq org-todo-keywords
-	  '((sequence "TODO(t)" "|" "DONE(d!)")
-	    (sequence "BLOCKED(b@)")
+	  '((sequence "TODO(t)" "|" "DONE(d!/!)")
+	    (sequence "BLOCKED(b@/!)")
 	    (sequence "|" "CANCELED(c@)")
-	    (sequence "URGENT(u!)")))
+	    (sequence "URGENT(u)")
+            (sequence "IN-QA(q/@)")
+            (sequence "DO-QA(a)" "|" "DONE(d!/!)")))
     (setq org-todo-keyword-faces
 	  '(("TODO" . "orange") ("BLOCKED" . "yellow") ("CANCELED" . "green")
-	    ("DONE" . "green") ("URGENT" . "red")))
+	    ("DONE" . "green") ("URGENT" . "red") ("IN-QA" . "yellow")
+	    ("DO-QA" . "orange")))
+
+    ;;; org-outlook.el - Support for links to Outlook items in Org
+    ;;; To find the corresponding Outlook macro, go to:
+    ;;; https://superuser.com/questions/71786/can-i-create-a-link-to-a-specific-email-message-in-outlook
+    (org-add-link-type "outlook" 'org-outlook-open)
+    (defun org-outlook-open (id)
+      "Open the Outlook item identified by ID.  ID should be an Outlook GUID."
+      (w32-shell-execute "open" "C:/Program Files/Microsoft Office/Office15/OUTLOOK.EXE" (concat "/select " "outlook:" id)))
+    (provide 'org-outlook)
     
     ;; enable python for in-buffer evaluation
     (org-babel-do-load-languages
