@@ -10,6 +10,9 @@
 (add-hook 'python-mode-hook '(lambda ()
   (local-set-key (kbd "RET") 'newline-and-indent)))
 
+;; update SQL mode to open .prc
+(add-to-list 'auto-mode-alist '("\\.prc\\'" . sql-mode))
+
 ;;set custom variables
 (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
     (custom-set-variables
@@ -89,6 +92,19 @@
     (global-set-key "\C-cl" 'org-store-link)
     (global-set-key "\C-ca" 'org-agenda)
     (global-set-key "\C-cb" 'org-iswitchb)
+    (global-set-key "\C-cc" 'org-capture)
+    
+    ;; custom settings for org-mode
+    (setq org-log-into-drawer t)
+    (setq org-reverse-note-order nil)
+    (setq org-log-state-notes-insert-after-drawers nil)
+    (setq org-insert-heading-respect-content nil)
+    (setq org-enforce-todo-dependencies t)
+    (setq org-special-ctrl-a/e t)
+    (setq org-special-ctrl-k t)
+    (setq org-completion-use-ido t)
+    (setq org-return-follows-link t)
+    (setq org-hide-leading-stars t)    
 
     ;; org-mode agenda files
     ;; Set protocol based on OS type
@@ -112,6 +128,7 @@
 	  '(("TODO" . "orange") ("BLOCKED" . "yellow") ("CANCELED" . "green")
 	    ("DONE" . "green") ("URGENT" . "red") ("IN-QA" . "yellow")
 	    ("DO-QA" . "orange")))
+
 
     ;;; org-outlook.el - Support for links to Outlook items in Org
     ;;; To find the corresponding Outlook macro, go to:
@@ -207,12 +224,17 @@
   (find-file file))
 (defun eshell/open (file)
   (find-file-other-window file))
+(defun eshell/xb ()
+  (ido-switch-buffer))
+(defun eshell/xo ()
+  (other-window 1))
 
 ;; move to middle of current line
 (defun middle-of-line ()
   "Put cursor at middle point of the line."
   (interactive)
   (goto-char (/ (+ (point-at-bol) (point-at-eol)) 2)))
+(global-set-key "\M-g\M-l" 'middle-of-line)
 
 (defun go-to-column (column)
   (interactive "nColumn: ")
