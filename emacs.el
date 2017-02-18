@@ -107,6 +107,7 @@
     (setq org-completion-use-ido t) 
     (setq org-return-follows-link t) 
     (setq org-hide-leading-stars t) 
+    (setq org-agenda-dim-blocked-tasks nil)
      
     ;; org-mode agenda files 
     ;; Set protocol based on OS type 
@@ -114,10 +115,14 @@
     (defun org-load-files () 
       (interactive) 
       (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt)) 
-          ((setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))) 
-           (setq org-default-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/work.org")) 
+          ((setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))
+           (setq org-default-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/work.org")
+           (setq aap-notes-file "C:/Users/apope/Documents/work_notes.org")
+           (setq aap-personal-file "/plink:apope@andrewapope.com:/home/apope/orgs/personal.org"))
         (setq org-agenda-files '("/ssh:apope@andrewapope.com:~/orgs"))
-        (setq org-default-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/work.org"))
+        (setq org-default-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/work.org")
+        (setq aap-notes-file "/ssh:apope@andrewapope.com:~/orgs/personal_notes.org")
+        (setq aap-personal-file "/ssh:apope@andrewapope.com:/home/apope/orgs/personal.org")))
  
     ;; todo types, sequences, and templates 
     (setq org-todo-keywords 
@@ -133,47 +138,105 @@
     (setq org-todo-keyword-faces 
 	  '(("TODO" . "orange") ("BLOCKED" . "yellow") ("CANCELED" . "green") 
 	    ("DONE" . "green") ("URGENT" . "red") ("IN-QA" . "yellow") 
-            ("DO-QA" . "orange") ("PROJECT" . (:foreground "orchid" :weight bold)) 
-            ("IDEA" . (:foreground "royal blue" :weight bold)))) 
+            ("DO-QA" . "orange") ("PROJECT" . (:foreground "dark orchid" :weight bold)) 
+            ("IDEA" . (:foreground "royal blue" :weight bold))))
+
+    (setq org-tag-alist
+          '((:startgroup nil)
+            ("work" . ?w) ("personal" . ?p)
+            (:endgroup nil)
+            ("project". ?j)))
  
     (setq org-capture-templates 
-          '(("t" "Todo" entry (file "") 
-                 "* TODO %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))") 
+          '(("d" "Todo with deadline" entry (file "") 
+                 "* TODO %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))")
+            ("t" "Todo without deadline" entry (file "")
+                 "* TODO %?")
             ("q" "Do-QA" entry (file "") 
                  "* DO-QA %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n %x") 
-            ("n" "Note" entry (file "c:/Users/apope/Documents/work_notes.org") 
-                 "* %?") 
+            ("n" "Note" entry (file aap-notes-file)
+                 "* %?")
+            ("m" "Meeting note" entry (file aap-notes-file)
+                 "* %^{Meeting topic} - %T\n  - %?")
             ("i" "Idea" entry (file "") 
                  "* IDEA %?") 
             ("p" "Project" entry (file "") 
-             "* PROJECT %?"))) 
- 
+             "* PROJECT %^{Project Name}%? [%] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:")
+            ("j" "Personal project" entry (file aap-personal-file)
+             "* PROJECT %^{Project Name}%? [%] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:")
+            ("o" "Personal todo item" entry (file aap-personal-file)
+             "* TODO %?")))
+
+    (defun aap-indent-project ()
+       (if (string-equal (org-entry-get (point) "TODO") "PROJECT")
+           (make-string (* (org-current-level) 2) ?\s)
+         (concat
+           (make-string (* (- (org-current-level) 1) 2) ?\s)
+           "- ")))
  
     (setq org-agenda-custom-commands 
-          '(("w" "Work tasks" 
-              
+          '(
+            ("n" "Traditional combined view"
+             ((agenda "")
+              (alltodo "")))
+            ("w" "Work tasks" 
              ((agenda "" 
                       ((org-agenda-span 1) 
                        (org-agenda-sorting-strategy 
                         (quote 
-                         (priority-down todo-state-up))))) 
-              (todo "PROJECT" 
-                    ((org-agenda-overriding-header "Projects:"))) 
+                         (priority-down todo-state-up)))
+                       (org-deadline-warning-days 6)
+                       (org-agenda-deadline-faces
+                        '((1.0 . org-warning)
+                          (0.33 . org-upcoming-deadline)
+                          (0.0 . default)))
+                       (org-agenda-skip-deadline-if-done t)
+                       (org-agenda-skip-scheduled-if-done t)
+                       (org-agenda-prefix-format " %i %-15:c%?-12t% s")
+                       (org-agenda-overriding-header "Agenday for today:")))
+              (tags "project" 
+                    ((org-agenda-overriding-header "Ongoing projects:")
+                     (org-agenda-prefix-format " %i %-15:c   %(aap-indent-project)")
+                     (org-agenda-sorting-strategy
+                      (quote
+                       (category-keep)))))
               (todo "IDEA" 
-                    ((org-agenda-overriding-header "Ideas:"))) 
-              (todo "TODO|DO-QA|BLOCKED|IN-QA" 
+                    ((org-agenda-overriding-header "Ideas:")
+                     (org-agenda-sorting-strategy
+                      (quote
+                       (alpha-up)))))
+              (tags-todo "-project/TODO|DO-QA|BLOCKED|IN-QA" 
                        ((org-agenda-sorting-strategy 
-                        (quote 
-                         (todo-state-down priority-down alpha-up))) 
-                        (org-agenda-overriding-header "All Other Todo Items:")))) 
-              
+                         (quote 
+                          (todo-state-down priority-down alpha-up)))
+                        (org-agenda-tags-todo-honor-ignore-options t)
+                        (org-agenda-overriding-header "Other todo items:")
+                        (org-agenda-todo-ignore-with-date t))))
              ((org-agenda-tag-filter-preset '("+work")) 
-              (org-agenda-sorting-strategy 
-               (quote 
-                (alpha-up))))))) 
- 
- 
- 
+              (org-agenda-dim-blocked-tasks nil)))
+
+            ("p" "Personal tasks" 
+             ((tags "project" 
+                    ((org-agenda-overriding-header "Ongoing projects:")
+                     (org-agenda-prefix-format " %i %-15:c   %(aap-indent-project)")
+                     (org-agenda-sorting-strategy
+                      (quote
+                       (category-keep)))))
+              (todo "IDEA" 
+                    ((org-agenda-overriding-header "Ideas:")
+                     (org-agenda-sorting-strategy
+                      (quote
+                       (alpha-up)))))
+              (tags-todo "-project/TODO|DO-QA|BLOCKED|IN-QA" 
+                       ((org-agenda-sorting-strategy 
+                         (quote 
+                          (todo-state-down priority-down alpha-up)))
+                        (org-agenda-tags-todo-honor-ignore-options t)
+                        (org-agenda-overriding-header "Other todo items:")
+                        (org-agenda-todo-ignore-with-date t))))
+             ((org-agenda-tag-filter-preset '("+personal"))))))
+
+            
      
     ;; enable python for in-buffer evaluation 
     (org-babel-do-load-languages 
