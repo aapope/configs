@@ -132,14 +132,16 @@
 	    (sequence "URGENT(u)") 
             (sequence "IN-QA(q!/@)") 
             (sequence "DO-QA(a@)" "|" "DONE(d!/!)") 
-            (sequence "IDEA(i)") 
+            (sequence "IDEA(i)")
+            (sequence "NEXT(n!)")
             (sequence "PROJECT(p)" "|" "DONE(d!/!)"))) 
      
     (setq org-todo-keyword-faces 
 	  '(("TODO" . "orange") ("BLOCKED" . "yellow") ("CANCELED" . "green") 
 	    ("DONE" . "green") ("URGENT" . "red") ("IN-QA" . "yellow") 
             ("DO-QA" . "orange") ("PROJECT" . (:foreground "dark orchid" :weight bold)) 
-            ("IDEA" . (:foreground "royal blue" :weight bold))))
+            ("IDEA" . (:foreground "royal blue" :weight bold))
+            ("NEXT". "IndianRed1")))
 
     (setq org-tag-alist
           '((:startgroup nil)
@@ -180,7 +182,10 @@
              ((agenda "")
               (alltodo "")))
             ("w" "Work tasks" 
-             ((agenda "" 
+             ((todo "NEXT"
+                    ((org-agenda-overriding-header "Items to do next:")
+                     (org-agenda-prefix-format " %i %-15:c ")))
+              (agenda "" 
                       ((org-agenda-span 1) 
                        (org-agenda-sorting-strategy 
                         (quote 
@@ -194,7 +199,7 @@
                        (org-agenda-skip-scheduled-if-done t)
                        (org-agenda-prefix-format " %i %-15:c%?-12t% s")
                        (org-agenda-overriding-header "Agenday for today:")))
-              (tags "project" 
+              (tags-todo "+project/-DONE-CANCELLED"
                     ((org-agenda-overriding-header "Ongoing projects:")
                      (org-agenda-prefix-format " %i %-15:c   %(aap-indent-project)")
                      (org-agenda-sorting-strategy
@@ -216,7 +221,10 @@
               (org-agenda-dim-blocked-tasks nil)))
 
             ("p" "Personal tasks" 
-             ((tags "project" 
+             ((todo "NEXT"
+                    ((org-agenda-overriding-header "Items to do next:")
+                     (org-agenda-prefix-format " %i %-15:c ")))
+              (tags-todo "+project/-DONE-CANCELLED"
                     ((org-agenda-overriding-header "Ongoing projects:")
                      (org-agenda-prefix-format " %i %-15:c   %(aap-indent-project)")
                      (org-agenda-sorting-strategy
