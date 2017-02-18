@@ -133,7 +133,7 @@
     ;;; org-outlook.el - Support for links to Outlook items in Org
     ;;; To find the corresponding Outlook macro, go to:
     ;;; https://superuser.com/questions/71786/can-i-create-a-link-to-a-specific-email-message-in-outlook
-    (org-add-link-type "outlook" 'org-outlook-open)
+    ;; (org-add-link-type "outlook" 'org-outlook-open)
     (defun org-outlook-open (id)
       "Open the Outlook item identified by ID.  ID should be an Outlook GUID."
       (w32-shell-execute "open" "C:/Program Files/Microsoft Office/Office15/OUTLOOK.EXE" (concat "/select " "outlook:" id)))
