@@ -204,7 +204,7 @@
                     ((org-agenda-overriding-header "Ideas:")
                      (org-agenda-sorting-strategy
                       (quote
-                       (alpha-up)))))
+                       (priority-down alpha-up)))))
               (tags-todo "-project/TODO|DO-QA|BLOCKED|IN-QA" 
                        ((org-agenda-sorting-strategy 
                          (quote 
@@ -226,7 +226,7 @@
                     ((org-agenda-overriding-header "Ideas:")
                      (org-agenda-sorting-strategy
                       (quote
-                       (alpha-up)))))
+                       (priority-down alpha-up)))))
               (tags-todo "-project/TODO|DO-QA|BLOCKED|IN-QA" 
                        ((org-agenda-sorting-strategy 
                          (quote 
