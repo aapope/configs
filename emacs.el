@@ -300,7 +300,15 @@
      
     ;; ein 
     (setq ein:notebook-modes '(ein:notebook-multilang-mode)) 
-    (add-hook 'ein:connect-mode-hook 'ein:jedi-setup) 
+    (add-hook 'ein:connect-mode-hook 'ein:jedi-setup)
+
+
+    ;; magit
+    (global-set-key (kbd "C-x g") 'magit-status)
+    (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+
+    ;; eshell git
+    (eshell-git-prompt-use-theme 'powerline)
 )) 
  
 ;; Only load these things if we're not in a terminal 
