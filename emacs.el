@@ -276,9 +276,7 @@
       (add-hook 'python-mode-hook #'orgstruct++-mode)) 
      
     ;; jedi for python mode 
-    ;; (add-hook 'python-mode-hook 'jedi:setup) 
-    ;; ;; jedi for ipython mode 
-    ;; (add-hook 'ein:connect-mode-hook 'ein:jedi-setup) 
+    (add-hook 'python-mode-hook 'jedi:setup) 
      
     ;; ido mode 
     (setq ido-enable-flex-matching t) 
