@@ -13,14 +13,6 @@
 ;; update SQL mode to open .prc 
 (add-to-list 'auto-mode-alist '("\\.prc\\'" . sql-mode)) 
  
-;;set custom variables 
-(custom-set-variables 
- ;; custom-set-variables was added by Custom. 
- ;; If you edit it by hand, you could mess it up, so be careful. 
- ;; Your init file should contain only one such instance. 
- ;; If there is more than one, they won't work right. 
-)
- 
 ;; add default markdown mode extensions 
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode)) 
  
@@ -33,7 +25,12 @@
 ;; code folding 
 (if (>= emacs-major-version 24) 
     (add-hook 'prog-mode-hook #'hs-minor-mode) 
-  (add-hook 'python-mode-hook #'hs-minor-mode)) 
+  (add-hook 'python-mode-hook #'hs-minor-mode))
+
+;; tramp stuff
+(if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
+    (setq tramp-default-method "plink")
+  (setq tramp-default-method "ssh"))
  
  
 ;; for non-terminal-based emacs: 
@@ -115,7 +112,8 @@
     (defun org-load-files () 
       (interactive) 
       (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt)) 
-          ((setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))
+          (progn
+           (setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))
            (setq org-default-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/work.org")
            (setq aap-notes-file "C:/Users/apope/Documents/work_notes.org")
            (setq aap-personal-file "/plink:apope@andrewapope.com:/home/apope/orgs/personal.org"))
@@ -133,7 +131,7 @@
             (sequence "IN-QA(q!/@)") 
             (sequence "DO-QA(a@)" "|" "DONE(d!/!)") 
             (sequence "IDEA(i)")
-            (sequence "NEXT(n!)")
+            (sequence "NEXT(n!)" "|")
             (sequence "PROJECT(p)" "|" "DONE(d!/!)"))) 
      
     (setq org-todo-keyword-faces 
@@ -155,7 +153,7 @@
             ("t" "Todo without deadline" entry (file "")
                  "* TODO %?")
             ("q" "Do-QA" entry (file "") 
-                 "* DO-QA %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n %x") 
+                 "* DO-QA %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n :PROPERTIES:\n :CATEGORY: DO-QA\n :END:\n %x") 
             ("n" "Note" entry (file aap-notes-file)
                  "* %?")
             ("m" "Meeting note" entry (file aap-notes-file)
@@ -216,7 +214,12 @@
                           (todo-state-down priority-down alpha-up)))
                         (org-agenda-tags-todo-honor-ignore-options t)
                         (org-agenda-overriding-header "Other todo items:")
-                        (org-agenda-todo-ignore-with-date t))))
+                        (org-agenda-todo-ignore-with-date t)))
+              (todo "IN-QA"
+                    ((org-agenda-overriding-header "Items in QA:")
+                     (org-agenda-sorting-strategy
+                      (quote
+                       (priority-down alpha-up))))))
              ((org-agenda-tag-filter-preset '("+work")) 
               (org-agenda-dim-blocked-tasks nil)))
 
@@ -242,7 +245,10 @@
                         (org-agenda-tags-todo-honor-ignore-options t)
                         (org-agenda-overriding-header "Other todo items:")
                         (org-agenda-todo-ignore-with-date t))))
-             ((org-agenda-tag-filter-preset '("+personal"))))))
+             ((org-agenda-tag-filter-preset '("+personal"))))
+            ("d" "Completed todos scheduled in the last 14 days"
+             todo "DONE")))
+
 
             
      
@@ -355,15 +361,8 @@
  
 (defun go-to-column (column) 
   (interactive "nColumn: ") 
-  (move-to-column column t)) 
- 
+  (move-to-column column t))  
  
 ;; unset system proxy, for connect with ein 
 ;; leaves https proxy, for connect with package 
 (setenv "http_proxy" "") 
-(custom-set-faces 
- ;; custom-set-faces was added by Custom. 
- ;; If you edit it by hand, you could mess it up, so be careful. 
- ;; Your init file should contain only one such instance. 
- ;; If there is more than one, they won't work right. 
- )
