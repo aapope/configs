@@ -130,9 +130,9 @@
 	    (sequence "URGENT(u)") 
             (sequence "IN-QA(q!/@)") 
             (sequence "DO-QA(a@)" "|" "DONE(d!/!)") 
-            (sequence "IDEA(i)")
+            (sequence "IDEA(i)" "|")
             (sequence "NEXT(n!)" "|")
-            (sequence "PROJECT(p)" "|" "DONE(d!/!)"))) 
+            (sequence "PROJECT(p)" "|" "DONE(d!/!)")))
      
     (setq org-todo-keyword-faces 
 	  '(("TODO" . "orange") ("BLOCKED" . "yellow") ("CANCELED" . "green") 
@@ -309,6 +309,10 @@
 
     ;; eshell git
     (eshell-git-prompt-use-theme 'powerline)
+
+    ;; ipython for run-python
+    (setq python-shell-interpreter "ipython"
+          python-shell-interpreter-args "-i")
 )) 
  
 ;; Only load these things if we're not in a terminal 
