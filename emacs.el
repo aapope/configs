@@ -215,8 +215,8 @@
                         (org-agenda-tags-todo-honor-ignore-options t)
                         (org-agenda-overriding-header "Other todo items:")
                         (org-agenda-todo-ignore-with-date t)))
-              (todo "IN-QA"
-                    ((org-agenda-overriding-header "Items in QA:")
+              (todo "IN-QA|BLOCKED"
+                    ((org-agenda-overriding-header "Items blocked or in QA:")
                      (org-agenda-sorting-strategy
                       (quote
                        (priority-down alpha-up))))))
