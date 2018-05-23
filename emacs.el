@@ -43,15 +43,6 @@
     (setq tramp-default-method "plink")
   (setq tramp-default-method "ssh"))
 
-;; cygwin stuff, couldn't get it to work...
-;; (if (file-directory-p "c:/cygwin64/bin")
-;;     (progn
-;;       (add-to-list 'exec-path "c:/cygwin64/bin")
-;;       (setq python-shell-interpreter "python2.7"
-;;             python-shell-interpreter-args "-i")
-;;       (setq shell-file-name "bash")
-;;       (setq explicit-shell-file-name shell-file-name)))
-
  
 ;; for non-terminal-based emacs: 
 ;; remove tool bars, set theme and font, 
@@ -135,10 +126,10 @@
       (interactive) 
       (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt)) 
           (progn
-            (setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))
-            (setq org-default-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/work.org")
-            (setq aap-notes-file "C:/Users/apope/Documents/work_notes.org")
-            (setq aap-personal-file "/plink:apope@andrewapope.com:/home/apope/orgs/personal.org"))
+           (setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))
+           (setq org-default-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/work.org")
+           (setq aap-notes-file "C:/Users/apope/Documents/work_notes.org")
+           (setq aap-personal-file "/plink:apope@andrewapope.com:/home/apope/orgs/personal.org"))
         (setq org-agenda-files '("/ssh:apope@andrewapope.com:~/orgs"))
         (setq org-default-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/work.org")
         (setq aap-notes-file "/ssh:apope@andrewapope.com:~/orgs/personal_notes.org")
@@ -411,6 +402,3 @@
 ;; unset system proxy, for connect with ein 
 ;; leaves https proxy, for connect with package 
 (setenv "http_proxy" "") 
-
-
-(add-hook 'org-mode-hook (lambda () (auto-revert-mode 1)))
