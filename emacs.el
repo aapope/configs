@@ -135,10 +135,18 @@
         (setq aap-notes-file "/ssh:apope@andrewapope.com:~/orgs/personal_notes.org")
         (setq aap-personal-file "/ssh:apope@andrewapope.com:/home/apope/orgs/personal.org")))
 
-    ;; auto reload these org files when they change on the server
-    (add-hook 'org-mode-hook (lambda () (auto-revert-mode 1)))
-    (setq auto-revert-remote-files t)
- 
+    ;; reload functionality to enable mobile tasks
+    ;; prepends the org agenda reload with a file revert
+    (defun aap-org-agenda-reload ()
+      (interactive)
+      (with-current-buffer "work.org"
+        (revert-buffer t t t))
+      (org-agenda-redo t))
+    
+    (add-hook 'org-agenda-mode-hook '(lambda ()
+                                       (local-set-key (kbd "r") 'aap-org-agenda-reload)))
+
+    
     ;; todo types, sequences, and templates 
     (setq org-todo-keywords 
 	  '((sequence "TODO(t)" "|" "DONE(d!/!)") 
