@@ -410,3 +410,6 @@
 ;; unset system proxy, for connect with ein 
 ;; leaves https proxy, for connect with package 
 (setenv "http_proxy" "") 
+
+;; i hate the goddamn bell
+(setq ring-bell-function 'ignore)
