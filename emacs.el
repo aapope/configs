@@ -1,4 +1,4 @@
-; set custom key codes 
+; set custom key codes
 (put 'upcase-region 'disabled nil) 
 (global-set-key "\C-h" 'backward-delete-char) 
 (global-set-key "\C-w" 'backward-kill-word) 
@@ -31,7 +31,7 @@
 (setq make-backup-files nil) 
  
 ;; wrap lines 
-(global-visual-line-mode 1) 
+(global-visual-line-mode 1)
  
 ;; code folding 
 (if (>= emacs-major-version 24) 
@@ -53,7 +53,7 @@
   (load-theme 'tango-dark) 
   ;; (set-default-font "Fantasque Sans Mono-12")
   (add-to-list 'default-frame-alist
-               '(font . "Fantasque Sans Mono-12"))
+               '(font . "Fantasque Sans Mono-14"))
   ;; semi-transparent background 
   ;; (set-frame-parameter (selected-frame) 'alpha '(85 85)) 
   ;; (add-to-list 'default-frame-alist '(alpha 85 85)) 
@@ -124,16 +124,22 @@
     ;; Only setup function, make emacs ask. 
     (defun org-load-files () 
       (interactive) 
-      (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt)) 
+      (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
           (progn
-           (setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))
-           (setq org-default-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/work.org")
-           (setq aap-notes-file "C:/Users/apope/Documents/work_notes.org")
-           (setq aap-personal-file "/plink:apope@andrewapope.com:/home/apope/orgs/personal.org"))
-        (setq org-agenda-files '("/ssh:apope@andrewapope.com:~/orgs"))
-        (setq org-default-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/work.org")
-        (setq aap-notes-file "/ssh:apope@andrewapope.com:~/orgs/personal_notes.org")
-        (setq aap-personal-file "/ssh:apope@andrewapope.com:/home/apope/orgs/personal.org")))
+            (setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))
+            (setq org-default-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/work.org")
+            (setq aap-notes-file "C:/Users/apope/Documents/work_notes.org")
+            (setq aap-personal-file "/plink:apope@andrewapope.com:/home/apope/orgs/personal.org"))
+        (if (eq system-type 'darwin)
+            (progn
+              (setq org-agenda-files '("/ssh:apope@andrewapope.com:~/orgs"))
+              (setq org-default-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/work.org")
+              (setq aap-notes-file "/Users/apope/notes.org")
+              (setq aap-personal-file "/ssh:apope@andrewapope.com:/home/apope/orgs/personal.org"))
+          (setq org-agenda-files '("/ssh:apope@andrewapope.com:~/orgs"))
+          (setq org-default-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/work.org")
+          (setq aap-notes-file "/ssh:apope@andrewapope.com:~/orgs/personal_notes.org")
+          (setq aap-personal-file "/ssh:apope@andrewapope.com:/home/apope/orgs/personal.org"))))
 
     ;; reload functionality to enable mobile tasks
     ;; prepends the org agenda reload with a file revert
@@ -342,7 +348,7 @@
     (setq magit-auto-revert-mode nil)
 
     ;; eshell git
-    (eshell-git-prompt-use-theme 'powerline)
+    ;; (eshell-git-prompt-use-theme 'powerline)
 
     ;; ipython for run-python
     (setq python-shell-interpreter "ipython"
@@ -413,3 +419,22 @@
 
 ;; i hate the goddamn bell
 (setq ring-bell-function 'ignore)
+
+;; if mac/linux, load path from shell
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+
+;; when on mac, use command key as meta and option as alt
+;; also, any PATH edits duplicated from .bashrc (need to figure this out later)
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'alt)
+  (setq mac-command-modifier 'meta))
+
+
+
+
+
+;; when on mac, use command key as meta and option as alt
+;; also, any PATH edits duplicated from .bashrc (need to figure this out later)
+
+; (add-to-list 'exec-path "/Users/apope/bin")
