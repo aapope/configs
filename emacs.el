@@ -3,7 +3,8 @@
 (global-set-key "\C-h" 'backward-delete-char) 
 (global-set-key "\C-w" 'backward-kill-word) 
 (global-set-key "\C-x\C-k" 'kill-region) 
-(global-set-key "\C-c\C-k" 'kill-region) 
+(global-set-key "\C-c\C-k" 'kill-region)
+(global-set-key (kbd "C-M-i") 'indent-rigidly)
 (setq-default indent-tabs-mode nil)
 (setq column-number-mode t)
  
@@ -16,6 +17,12 @@
 (add-hook 'sql-mode-hook '(lambda()
                             (setq tab-width 4)
                             (setq indent-tabs-mode nil)))
+             
+                            
+
+;; yaml mode uses tab width 4
+(setq yaml-indent-offset 4)
+
 ;; NOTE: when i tested this, there were mismatched parens. Try it again later!!
 ;; (add-hook 'sqlplus-mode-hook '(lambda()
 ;;                                 (setq tab-width 4)
@@ -25,7 +32,7 @@
 ;; (setq tab-stop-list (number-sequence 2 120 2))
  
 ;; add default markdown mode extensions 
-(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode)) 
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
  
 ;; remove backup files because I hate them 
 (setq make-backup-files nil) 
@@ -340,6 +347,9 @@
     (setq ein:jupyter-default-server-command "jupyter")
     (setq ein:jupyter-default-notebook-directory "b:")
     (setq ein:jupyter-server-args (list "--no-browser"))
+    (setq ein:enable-keepalive t)
+    (setq ein:notebooklist-enable-keepalive t) ;; not sure which variable is correct!
+    (setq ein:slice-image t) ;; better image scrolling, but some bugs
 
 
     ;; magit
@@ -430,11 +440,21 @@
   (setq mac-option-modifier 'alt)
   (setq mac-command-modifier 'meta))
 
+;; auto refresh buffers when edited on disk
+;; useful for git when checking out new branch
+(global-auto-revert-mode t)
 
+;; add jinja mode to SQL files for dbt usage
+(require 'mmm-mode)
+(require 'mmm-jinja2)
+(setq mmm-global-mode 'maybe)
+;; (add-to-list 'auto-mode-alist '("\\.sql" . sql-mode))
+(mmm-add-mode-ext-class 'sql-mode nil 'jinja2)
 
+(defun eshell-new()
+  "Open a new instance of eshell."
+  (interactive)
+  (eshell 'N))
 
+(setq markdown-command "/usr/local/bin/pandoc")
 
-;; when on mac, use command key as meta and option as alt
-;; also, any PATH edits duplicated from .bashrc (need to figure this out later)
-
-; (add-to-list 'exec-path "/Users/apope/bin")
