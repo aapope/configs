@@ -363,6 +363,9 @@
     ;; ipython for run-python
     (setq python-shell-interpreter "ipython"
           python-shell-interpreter-args "-i")
+
+    ;; ace-window
+    (global-set-key (kbd "M-o") 'ace-window)
 )) 
  
 ;; Only load these things if we're not in a terminal 
