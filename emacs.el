@@ -7,6 +7,7 @@
 (global-set-key (kbd "C-M-i") 'indent-rigidly)
 (setq-default indent-tabs-mode nil)
 (setq column-number-mode t)
+(put 'downcase-region 'disabled nil)
  
 ;; python settings 
 (add-hook 'python-mode-hook '(lambda () 
@@ -41,9 +42,9 @@
 (global-visual-line-mode 1)
  
 ;; code folding 
-(if (>= emacs-major-version 24) 
-    (add-hook 'prog-mode-hook #'hs-minor-mode) 
-  (add-hook 'python-mode-hook #'hs-minor-mode))
+;; (if (>= emacs-major-version 24) 
+;;     (add-hook 'prog-mode-hook #'hs-minor-mode) 
+;;   (add-hook 'python-mode-hook #'hs-minor-mode))
 
 ;; tramp stuff
 (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
@@ -57,7 +58,7 @@
 (defun load-gui-settings () 
   (tool-bar-mode -1) 
   (scroll-bar-mode -1) 
-  (load-theme 'tango-dark) 
+  ;; (load-theme 'tango-dark) 
   ;; (set-default-font "Fantasque Sans Mono-12")
   (add-to-list 'default-frame-alist
                '(font . "Fantasque Sans Mono-14"))
@@ -461,3 +462,46 @@
 
 (setq markdown-command "/usr/local/bin/pandoc")
 
+;; multiple cursors
+(require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+;; sql mode
+;; (setq sql-postgres-login-params (append sql-postgres-login-params '(port)))
+
+;; magit ido
+(require 'magit)
+(setq magit-completing-read-function 'magit-ido-completing-read)
+
+;; PRs
+(require 'magit-gh-pulls)
+(add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls)
+
+
+(setq sml/theme 'dark)
+(sml/setup)
+
+
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+;; other packages:
+;; ace-window
+
+;; to run a command in the background, run ec [command] 
+ (defun eshell/ec (&rest args)
+      "Use `compile' to do background makes."
+      (if (eshell-interactive-output-p)
+          (let ((compilation-process-setup-function
+                 (list 'lambda nil
+                       (list 'setq 'process-environment
+                             (list 'quote (eshell-copy-environment))))))
+            (compile (eshell-flatten-and-stringify args))
+            (pop-to-buffer compilation-last-buffer))
+        (throw 'eshell-replace-command
+               (let ((l (eshell-stringify-list (eshell-flatten-list args))))
+                 (eshell-parse-command (car l) (cdr l))))))
+(put 'eshell/ec 'eshell-no-numeric-conversions t)
