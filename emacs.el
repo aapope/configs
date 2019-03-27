@@ -193,6 +193,9 @@
   (setq ido-file-extension-order '(".py", ".txt", ".org"))
   (ido-mode t))
 
+(use-package ido-completing-read+
+  :ensure t)
+
 ;; ace window
 (use-package ace-window
   :ensure t
@@ -251,7 +254,7 @@
 ;; magit
 (use-package magit
   :ensure t
-  :after ido
+  :after (ido ido-completing-read+)
   :bind (("C-x g" . magit-status)
          ("C-x M-g" . magit-dispatch-popup))
   :config
