@@ -412,13 +412,13 @@
            "* IDEA %?")
           ("p" "Project" entry (file "")
            "* PROJECT %^{Project Name}%? [/] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:")
-          ("j" "Personal project" entry (file aap-personal-file)
-           "* PROJECT %^{Project Name}%? [/] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:")
+          ("j" "Journal entry" entry (file aap-notes-file)
+           "* Journal Entry - %T\n  %?")
           ("o" "Personal todo item" entry (file aap-personal-file)
            "* TODO %?")))
   (setq org-stuck-projects
-        '("/+PROJECT" ("TODO" "BLOCKED" "URGENT" "DO-QA" "NEXT") nil
-          "SCHEDULED:\\|DEADLINE:"))
+        '("/+PROJECT" ("TODO" "BLOCKED" "URGENT" "DO-QA" "NEXT") nil))
+          ;; "SCHEDULED:\\|DEADLINE:"))
   (setq org-hierarchical-todo-statistics t)
   (setq org-completion-use-ido t)
   (setq org-agenda-custom-commands
