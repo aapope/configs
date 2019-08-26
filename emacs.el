@@ -209,17 +209,28 @@
 ;; ein mode
 (use-package ein
   :ensure t
-  :after jedi
+  ;; only loads if it's a GUI interfaces
+  :if window-system
+  ;; :requires jedi
   :hook ((ein:connect-mode . ein:jedi-setup))
+  ;; set these immediately so the first connection works
+  :init
+  (setq ein:jupyter-default-server-command "jupyter")
+  (setq ein:jupyter-default-notebook-directory "/home/apope/")
+  (setq ein:jupyter-server-args (list "--no-browser"))
+  (setq ein:default-url-or-port "https://home.andrewapope.com:8888/")
   :config
   (setq ein:notebook-modes '(ein:notebook-multilang-mode))
-  (setq ein:jupyter-default-server-command "jupyter")
-  ;; (setq ein:jupyter-default-notebook-directory "b:")
-  (setq ein:jupyter-server-args (list "--no-browser"))
   (setq ein:enable-keepalive t)
   (setq ein:notebooklist-enable-keepalive t) ;; not sure which variable is correct!
   ;; better image scrolling, but some bugs
-  (setq ein:slice-image t))
+  (setq ein:slice-image t)
+  (setq ein:completion-backend 'ein:use-ac-jedi-backend)
+  ;; (setq ein:worksheet-enable-undo t) <- didn't do what i wanted
+  ;; (setq ein:polymode t) <- caused all sorts of weird shit
+  (setq ein:worksheet-enable-undo t)
+  ;; (ein:org-register-lang-mode "ein-python" `python)
+  )
 
 ;; yaml mode
 (use-package yaml-mode
@@ -232,7 +243,8 @@
   :ensure t
   :mode "\\.md\\'"
   :config
-  (setq markdown-command "/usr/local/bin/pandoc"))
+  (setq markdown-command "/usr/bin/pandoc")
+  (setq markdown-header-scaling t))
 
 ;; mmm
 ;; add jinja mode to SQL files for dbt usage
@@ -367,20 +379,23 @@
   (setq org-return-follows-link t)
   (setq org-hide-leading-stars t)
   (setq org-agenda-dim-blocked-tasks nil)
+
+  (setq org-babel-load-languages '((emacs-lisp . t) (ein . t)))
+  
   (org-add-link-type "outlook" 'org-outlook-open)
   ;; todo types, sequences, and templates
   (setq org-todo-keywords
-	'((sequence "TODO(t)" "|" "DONE(d!/!)")
+	'((sequence "TODO(t!)" "|" "DONE(d!/!)")
 	  (sequence "BLOCKED(b@/!)")
 	  (sequence "|" "CANCELED(c@)")
           (sequence "ONHOLD(o!/!)")
 	  (sequence "URGENT(u)")
           (sequence "IN-QA(q!/@)")
           (sequence "DO-QA(a@)" "|" "DONE(d!/!)")
-          (sequence "IDEA(i)" "|")
+          (sequence "IDEA(i!)" "|")
           (sequence "NEXT(n!)" "|")
-          (sequence "PROJECT(p)" "|" "DONE(d!/!)")
-          (sequence "PENDING(g)")))
+          (sequence "PROJECT(p!)" "|" "DONE(d!/!)")
+          (sequence "PENDING(g!)")))
   (setq org-todo-keyword-faces
 	'(("TODO" . "orange") ("BLOCKED" . "yellow") ("CANCELED" . "green")
 	  ("DONE" . "green") ("URGENT" . "red") ("IN-QA" . "yellow")
@@ -399,23 +414,23 @@
           (:endgroup nil)))
   (setq org-capture-templates
         '(("d" "Todo with deadline" entry (file "")
-           "* TODO %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))")
+           "* TODO %?\n  DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
           ("t" "Todo without deadline" entry (file "")
-           "* TODO %?")
+           "* TODO %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
           ("q" "Do-QA" entry (file "")
-           "* DO-QA %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n :PROPERTIES:\n :CATEGORY: DO-QA\n :END:\n %x")
+           "* DO-QA %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n :PROPERTIES:\n :CATEGORY: DO-QA\n :END:\n :LOGBOOK:\n  - Created\t%U\n  :END:\n %x")
           ("n" "Note" entry (file aap-notes-file)
-           "* %?")
+           "* %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
           ("m" "Meeting note" entry (file aap-notes-file)
-           "* %^{Meeting topic} - %T\n  - %?")
+           "* %^{Meeting topic} - %T\n  - %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
           ("i" "Idea" entry (file "")
-           "* IDEA %?")
+           "* IDEA %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
           ("p" "Project" entry (file "")
-           "* PROJECT %^{Project Name}%? [/] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:")
+           "* PROJECT %^{Project Name}%? [/] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
           ("j" "Journal entry" entry (file aap-notes-file)
            "* Journal Entry - %T\n  %?")
           ("o" "Personal todo item" entry (file aap-personal-file)
-           "* TODO %?")))
+           "* TODO %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")))
   (setq org-stuck-projects
         '("/+PROJECT" ("TODO" "BLOCKED" "URGENT" "DO-QA" "NEXT") nil))
           ;; "SCHEDULED:\\|DEADLINE:"))
@@ -449,7 +464,7 @@
                        ((org-agenda-sorting-strategy
                          (quote
                           (todo-state-down priority-down alpha-up)))
-                        (org-agenda-tags-todo-honor-ignore-options t)
+                        (Org-agenda-tags-todo-honor-ignore-options t)
                         (org-agenda-overriding-header "Unscheduled todo items:")
                         (org-agenda-todo-ignore-with-date t)))
             (stuck ""
@@ -508,6 +523,7 @@
 ;; (el-get-bundle slack)
 (use-package slack
   :commands (slack-start)
+  :if window-system
   :init
   (setq slack-buffer-emojify t) ;; if you want to enable emoji, default nil
   (setq slack-prefer-current-team t)
