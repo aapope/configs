@@ -323,25 +323,33 @@
     (interactive)
     (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
         (progn
-          (setq org-agenda-files '("/plink:apope@andrewapope.com:~/orgs"))
-          (setq org-default-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/work.org")
-          (setq aap-notes-file "C:/Users/apope/Documents/work_notes.org")
-          (setq aap-personal-file "/plink:apope@andrewapope.com:/home/apope/orgs/personal.org"))
+          ;; BROKEN
+          (setq org-agenda-files '("/plink:apope@andrewapope.com:/home/apope/orgs/agenda"))
+        (setq org-personal-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/personal_notes.org")
+        (setq org-work-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/work_notes.org")
+        (setq org-personal-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/personal.org")
+        (setq org-work-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/work.org"))
       (if (eq system-type 'darwin)
           (progn
-            (setq org-agenda-files '("/ssh:apope@andrewapope.com:~/orgs"))
-            (setq org-default-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/work.org")
-            (setq aap-notes-file "/Users/apope/notes.org")
-            (setq aap-personal-file "/ssh:apope@andrewapope.com:/home/apope/orgs/personal.org"))
-        ;; these have been edited for the sabbatical
-        (setq org-agenda-files '("/ssh:apope@andrewapope.com:/home/apope/orgs/agenda"))
-        (setq org-default-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/agenda/personal.org")
-        (setq aap-notes-file "/ssh:apope@andrewapope.com:/home/apope/orgs/personal_notes.org"))))
+            ;; BROKEN
+            (setq org-agenda-files '("/ssh:aap:/home/apope/orgs/agenda"))
+            (setq org-personal-notes-file "/ssh:aap:/home/apope/orgs/notes/personal_notes.org")
+            (setq org-work-notes-file "/ssh:aap:/home/apope/orgs/notes/work_notes.org")
+            (setq org-personal-agenda-file "/ssh:aap:/home/apope/orgs/agenda/personal.org")
+            (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org"))
+        ;; these are correct and have been edited for the sabbatical + contract work
+        (setq org-agenda-files '("/ssh:aap:/home/apope/orgs/agenda"))
+        (setq org-personal-notes-file "/ssh:aap:/home/apope/orgs/notes/personal_notes.org")
+        (setq org-work-notes-file "/ssh:aap:/home/apope/orgs/notes/work_notes.org")
+        (setq org-personal-agenda-file "/ssh:aap:/home/apope/orgs/agenda/personal.org")
+        (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org"))))
   ;; reload functionality to enable mobile tasks
   ;; prepends the org agenda reload with a file revert
   (defun aap-org-agenda-reload ()
     (interactive)
     (with-current-buffer "personal.org"
+      (revert-buffer t t t))
+    (with-current-buffer "work.org"
       (revert-buffer t t t))
     (org-agenda-redo t))
   (defun aap-indent-project ()
@@ -413,35 +421,48 @@
           ("data" . ?d) ("science" . ?s) ("philosophy" . ?y) ("social" . ?c)
           (:endgroup nil)))
   (setq org-capture-templates
-        '(("d" "Todo with deadline" entry (file "")
+        '(;; work templates
+          ("w" "Work templates")
+          ("wd" "Work Todo with deadline" entry (file org-work-agenda-file)
            "* TODO %?\n  DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
-          ("t" "Todo without deadline" entry (file "")
+          ("wt" "Work Todo without deadline" entry (file org-work-agenda-file)
            "* TODO %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
-          ("q" "Do-QA" entry (file "")
-           "* DO-QA %?\n DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n :PROPERTIES:\n :CATEGORY: DO-QA\n :END:\n :LOGBOOK:\n  - Created\t%U\n  :END:\n %x")
-          ("n" "Note" entry (file aap-notes-file)
+          ("wn" "Work Note" entry (file org-work-notes-file)
            "* %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
-          ("m" "Meeting note" entry (file aap-notes-file)
-           "* %^{Meeting topic} - %T\n  - %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
-          ("i" "Idea" entry (file "")
+          ("wi" "Work Idea" entry (file org-work-agenda-file)
            "* IDEA %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
-          ("p" "Project" entry (file "")
+          ("wp" "Work Project" entry (file org-work-agenda-file)
            "* PROJECT %^{Project Name}%? [/] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
-          ("j" "Journal entry" entry (file aap-notes-file)
-           "* Journal Entry - %T\n  %?")
-          ("o" "Personal todo item" entry (file aap-personal-file)
-           "* TODO %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")))
+          ;; personal templates
+          ("p" "Personal templates")
+          ("pd" "Personal Todo with deadline" entry (file org-personal-agenda-file)
+           "* TODO %?\n  DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+fri\"))\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
+          ("pt" "Personal Todo without deadline" entry (file org-personal-agenda-file)
+           "* TODO %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
+          ("pn" "Personal Note" entry (file org-personal-notes-file)
+           "* %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
+          ("pi" "Personal Idea" entry (file org-personal-agenda-file)
+           "* IDEA %?\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
+          ("pp" "Personal Project" entry (file org-personal-agenda-file)
+           "* PROJECT %^{Project Name}%? [/] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
+          ;; unique templates
+          ("j" "Journal entry" entry (file org-personal-notes-file)
+           "* Journal Entry - %T\n  %?")))
   (setq org-stuck-projects
         '("/+PROJECT" ("TODO" "BLOCKED" "URGENT" "DO-QA" "NEXT") nil))
           ;; "SCHEDULED:\\|DEADLINE:"))
   (setq org-hierarchical-todo-statistics t)
   (setq org-completion-use-ido t)
+  (setq org-refile-targets '((nil :maxlevel . 3)
+                             (org-agenda-files :maxlevel . 3)))
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps t)
   (setq org-agenda-custom-commands
         '(
           ("n" "Traditional combined view"
            ((agenda "")
             (alltodo "")))
-          ("w" "Sabbatical tasks"
+          ("p" "Personal tasks"
            ((todo "PENDING"
                   ((org-agenda-overriding-header "New tasks pending triage:")))
             (todo "NEXT"
@@ -485,29 +506,50 @@
             (org-agenda-prefix-format " %i %-22:c ")
             (org-agenda-dim-blocked-tasks nil)))
 
-          ("p" "Personal tasks"
-           ((todo "NEXT"
-                  ((org-agenda-overriding-header "Items to do next:")
-                   (org-agenda-prefix-format " %i %-15:c ")))
-            (tags-todo "+project/-DONE-CANCELLED"
-                       ((org-agenda-overriding-header "Ongoing projects:")
-                        (org-agenda-prefix-format " %i %-15:c   %(aap-indent-project)")
-                        (org-agenda-sorting-strategy
+          ("w" "Work tasks"
+           ((todo "PENDING"
+                  ((org-agenda-overriding-header "New tasks pending triage:")))
+            (todo "NEXT"
+                  ((org-agenda-overriding-header "Tasks to do next:")))
+            (agenda ""
+                    ((org-agenda-span 1)
+                     (org-agenda-sorting-strategy
+                      (quote
+                       (priority-down todo-state-up)))
+                     (org-deadline-warning-days 6)
+                     (org-agenda-deadline-faces
+                      '((1.0 . org-warning)
+                        (0.33 . org-upcoming-deadline)
+                        (0.0 . default)))
+                     (org-agenda-skip-deadline-if-done t)
+                     (org-agenda-skip-scheduled-if-done t)
+                     (org-agenda-prefix-format " %i %-22:c%?-12t% s")
+                     (org-agenda-overriding-header "Agenday for today:")))
+            (todo "TODO|DO-QA"
+                       ((org-agenda-sorting-strategy
                          (quote
-                          (category-keep)))))
+                          (todo-state-down priority-down alpha-up)))
+                        (Org-agenda-tags-todo-honor-ignore-options t)
+                        (org-agenda-overriding-header "Unscheduled todo items:")
+                        (org-agenda-todo-ignore-with-date t)))
+            (stuck ""
+                   ((org-agenda-prefix-format " ")
+                    (org-agenda-todo-ignore-with-date t)
+                    (org-agenda-overriding-header "Projects with no tasks:")))
             (todo "IDEA"
                   ((org-agenda-overriding-header "Ideas:")
                    (org-agenda-sorting-strategy
                     (quote
                      (priority-down alpha-up)))))
-            (tags-todo "-project/TODO|DO-QA|BLOCKED|IN-QA"
-                       ((org-agenda-sorting-strategy
-                         (quote
-                          (todo-state-down priority-down alpha-up)))
-                        (org-agenda-tags-todo-honor-ignore-options t)
-                        (org-agenda-overriding-header "Other todo items:")
-                        (org-agenda-todo-ignore-with-date t))))
-           ((org-agenda-tag-filter-preset '("+personal"))))
+            (todo "IN-QA|BLOCKED"
+                  ((org-agenda-overriding-header "Items blocked or in QA:")
+                   (org-agenda-sorting-strategy
+                    (quote
+                     (priority-down alpha-up))))))
+           ((org-agenda-tag-filter-preset '("+work"))
+            (org-agenda-prefix-format " %i %-22:c ")
+            (org-agenda-dim-blocked-tasks nil)))
+          
           ("o" "On hold projects"
            todo "ONHOLD"
            ((org-agenda-prefix-format "  ")))
@@ -565,4 +607,4 @@
 (use-package alert
   :commands (alert)
   :init
-  (setq alert-default-style 'notifier))
+  (setq alert-default-style 'notifications))
