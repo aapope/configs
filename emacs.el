@@ -95,6 +95,62 @@
     (setq tramp-default-method "plink")
   (setq tramp-default-method "ssh"))
 
+(when (fboundp 'winner-mode)
+  (winner-mode 1))
+
+;; save session when quitting
+(when (fboundp 'desktop-save-mode)
+    (require 'desktop)
+    (desktop-save-mode 1)
+    
+    (defun my-desktop-save ()
+      (interactive)
+      ;; Don't call desktop-save-in-desktop-dir, as it prints a message.
+      (if (eq (desktop-owner) (emacs-pid))
+          (desktop-save desktop-dirname)))
+    (add-hook 'auto-save-hook 'my-desktop-save)
+
+    (setq desktop-path '("~/.emacs.d/desktop/"))
+    (setq desktop-dirname "~/.emacs.d/desktop/")
+    (setq desktop-base-file-name ".emacs.desktop")
+
+    ;; remove desktop after it's been read
+    (add-hook 'desktop-after-read-hook
+              '(lambda ()
+                 ;; desktop-remove clears desktop-dirname
+                 (setq desktop-dirname-tmp desktop-dirname)
+                 (desktop-remove)
+                 (setq desktop-dirname desktop-dirname-tmp)))
+    
+    (defun saved-session ()
+      (file-exists-p (concat desktop-dirname "/" desktop-base-file-name)))    
+
+    ;; use session-restore to restore the desktop manually
+    (defun session-restore ()
+      "Restore a saved emacs session."
+      (interactive)
+      (if (saved-session)
+          (desktop-read)
+        (message "No desktop found.")))
+    
+    ;; use session-save to save the desktop manually
+    (defun session-save ()
+      "Save an emacs session."
+      (interactive)
+      (if (saved-session)
+          (if (y-or-n-p "Overwrite existing desktop? ")
+              (desktop-save-in-desktop-dir)
+            (message "Session not saved."))
+        (desktop-save-in-desktop-dir)))
+    
+    ;; ask user whether to restore desktop at start-up
+    (add-hook 'after-init-hook
+	  '(lambda ()
+	     (if (saved-session)
+		 (if (y-or-n-p "Restore desktop? ")
+		     (session-restore)))))
+    )
+
 ;;
 ;; custom functions
 ;;
@@ -175,9 +231,17 @@
 
 ;; SQL mode
 (add-to-list 'auto-mode-alist '("\\.prc\\'" . sql-mode))
-(add-hook 'sql-mode-hook '(lambda()
-                            (setq tab-width 4)
-                            (setq indent-tabs-mode nil)))
+;; (add-hook 'sql-mode-hook '(lambda()
+;;                             (setq tab-width 4)
+;;                             (setq indent-tabs-mode nil)))
+(setq sql-sqlite-program "sqlite3")
+(setq sql-connection-alist
+      '((fixd-redshift (sql-product 'postgres)
+                       (sql-server "redshift-cluster-1.c9hwoc0lav0f.us-east-2.redshift.amazonaws.com")
+                       (sql-port 5439)
+                       (sql-database "analytics")
+                       (sql-user "apope"))))
+(setq sql-send-terminator t)
 
 
 ;;
@@ -199,7 +263,16 @@
 ;; ace window
 (use-package ace-window
   :ensure t
-  :bind (("M-o" . ace-window)))
+  :bind (("M-o" . ace-window))
+  :config
+  (setq aw-background t)
+  (ace-window-display-mode 1)
+  (set-face-attribute `aw-leading-char-face nil
+                      :height 1.0 :foreground "#fb4933" :background "#282828" :bold t)
+  ;; tried to use the below to get the overlay to dim text properly, but it doesn't work
+  ;; my best guess is that the theme I'm using is overwriting it somehow
+  (set-face-attribute `aw-background-face nil
+                    :inverse-video nil :background "#282828" :foreground "#7e7a60"))
 
 ;; jedi mode
 (use-package jedi
@@ -300,6 +373,30 @@
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)))
 
+(use-package sql-indent
+  :ensure t
+  :init
+  (defvar aap-sql-indentation-offsets-alist
+    '((nested-statement-open sqlind-use-anchor-indentation
+                             +)
+      (nested-statement-continuation 1)
+      (nested-statement-close sqlind-use-anchor-indentation)
+      (select-clause 0)
+      (select-column sqlind-indent-select-column)
+      (select-column-continuation ++)
+      (select-table 0)
+      (select-table-continuation sqlind-lineup-joins-to-anchor)
+      (select-join-condition +)
+      (in-select-clause +
+                        sqlind-lone-semicolon)
+      (case-clause +)
+      (case-clause-item-cont +)))
+  (defun aap-set-sql-indent ()
+    (setq sqlind-indentation-offsets-alist aap-sql-indentation-offsets-alist)
+    (setq sqlind-basic-offset 4))
+  :hook ((sql-mode . sqlind-minor-mode)
+         (sqlind-minor-mode . aap-set-sql-indent)))
+
 
 ;;
 ;; org
@@ -307,14 +404,9 @@
 
 
 
-(use-package org-bullets
-  :ensure t
-  :requires org
-  :hook ((org-mode . (lambda () (org-bullets-mode 1)))))
-
 (use-package org
   :ensure t
-  
+  :demand t ;; so the packages which depend on org load properly
   :init ;; let's define the functions here
   ;; org-mode agenda files
   ;; Set protocol based on OS type
@@ -323,15 +415,14 @@
     (interactive)
     (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
         (progn
-          ;; BROKEN
           (setq org-agenda-files '("/plink:apope@andrewapope.com:/home/apope/orgs/agenda"))
-        (setq org-personal-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/personal_notes.org")
-        (setq org-work-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/work_notes.org")
-        (setq org-personal-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/personal.org")
-        (setq org-work-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/work.org"))
+          (setq org-personal-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/personal_notes.org")
+          (setq org-work-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/work_notes.org")
+          (setq org-personal-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/personal.org")
+          (setq org-work-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/work.org"))
       (if (eq system-type 'darwin)
           (progn
-            ;; BROKEN
+            ;; possibly BROKEN
             (setq org-agenda-files '("/ssh:aap:/home/apope/orgs/agenda"))
             (setq org-personal-notes-file "/ssh:aap:/home/apope/orgs/notes/personal_notes.org")
             (setq org-work-notes-file "/ssh:aap:/home/apope/orgs/notes/work_notes.org")
@@ -350,6 +441,8 @@
     (with-current-buffer "personal.org"
       (revert-buffer t t t))
     (with-current-buffer "work.org"
+      (revert-buffer t t t))
+    (with-current-buffer "triage.org"
       (revert-buffer t t t))
     (org-agenda-redo t))
   (defun aap-indent-project ()
@@ -387,6 +480,22 @@
   (setq org-return-follows-link t)
   (setq org-hide-leading-stars t)
   (setq org-agenda-dim-blocked-tasks nil)
+  (setq org-hide-emphasis-markers t)
+
+  ;; math stuff
+  ;; reminder: C-c C-x C-l turns on/off latex preview
+  ;; C-c C-x \ turns on/off pretty entities
+  (setq org-pretty-entities t)
+  (setq org-use-sub-superscripts t)
+  (setq org-pretty-entities-include-sub-superscripts t)
+  (setq org-startup-with-inline-images t)
+  (setq org-startup-with-latex-preview t)
+  ;; ignoring $1, $ and $$ as matchers
+  (setq org-format-latex-options
+        '(:foreground default :background default :scale 1.5
+          :html-foreground "Black" :html-background "Transparent"
+          :html-scale 1.5 :matchers ("begin" "\\(" "\\[")))
+  (setq org-startup-indented t)
 
   (setq org-babel-load-languages '((emacs-lisp . t) (ein . t)))
   
@@ -556,53 +665,20 @@
           ("d" "Completed todos scheduled in the last 14 days"
            todo "DONE"))))
 
+(use-package org-bullets
+  :ensure t
+  :requires org
+  :demand t
+  ;; not 100% sure why, but this wasn't working
+  :hook ((org-mode . org-bullets-mode))
+  :config
+  (setq org-bullets-bullet-list '("✸" "◉" "✿" "○")))
+
+
 
 ;;
 ;; random shit I'm playing around with
 ;;
-
-;; slack
-;; (el-get-bundle slack)
-(use-package slack
-  :commands (slack-start)
-  :if window-system
-  :init
-  (setq slack-buffer-emojify t) ;; if you want to enable emoji, default nil
-  (setq slack-prefer-current-team t)
-  :config
-  (slack-register-team
-   :name "SALTED"
-   :default t
-   :client-id "fb6bec2f-1551368819.663"
-;;   :client-secret "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-   :token "xoxs-412606013072-413326318658-454014502502-46fe595ec008a99bb7b369a0a75bea2a540cfe574b0b81c895a82c30299b0d67"
-   :subscribed-channels '(general random)
-   :full-and-display-names t)
-
-  ;; (evil-define-key 'normal slack-info-mode-map
-  ;;   ",u" 'slack-room-update-messages)
-  ;; (evil-define-key 'normal slack-mode-map
-  ;;   ",c" 'slack-buffer-kill
-  ;;   ",ra" 'slack-message-add-reaction
-  ;;   ",rr" 'slack-message-remove-reaction
-  ;;   ",rs" 'slack-message-show-reaction-users
-  ;;   ",pl" 'slack-room-pins-list
-  ;;   ",pa" 'slack-message-pins-add
-  ;;   ",pr" 'slack-message-pins-remove
-  ;;   ",mm" 'slack-message-write-another-buffer
-  ;;   ",me" 'slack-message-edit
-  ;;   ",md" 'slack-message-delete
-  ;;   ",u" 'slack-room-update-messages
-  ;;   ",2" 'slack-message-embed-mention
-  ;;   ",3" 'slack-message-embed-channel
-  ;;   "\C-n" 'slack-buffer-goto-next-message
-  ;;   "\C-p" 'slack-buffer-goto-prev-message)
-  ;;  (evil-define-key 'normal slack-edit-message-mode-map
-  ;;   ",k" 'slack-message-cancel-edit
-  ;;   ",s" 'slack-message-send-from-buffer
-  ;;   ",2" 'slack-message-embed-mention
-  ;;   ",3" 'slack-message-embed-channel))
-)
 
 (use-package alert
   :commands (alert)
