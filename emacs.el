@@ -17,6 +17,8 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
+;; static files
+(add-to-list 'load-path "~/.emacs.d/custom/")
 
 ;;
 ;; global key mappings
@@ -94,6 +96,13 @@
 (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
     (setq tramp-default-method "plink")
   (setq tramp-default-method "ssh"))
+
+;; setup tramp to use ssh agent forwarding, only for the EC2 instance
+(add-to-list 'tramp-connection-properties
+             (list (regexp-quote "/ssh:fixd-analytics-root:")
+                   "login-args"
+                   '(("-A") ("-l" "%u") ("-p" "%p") ("%c")
+                     ("-e" "none") ("%h"))))
 
 (when (fboundp 'winner-mode)
   (winner-mode 1))
@@ -231,17 +240,18 @@
 
 ;; SQL mode
 (add-to-list 'auto-mode-alist '("\\.prc\\'" . sql-mode))
+;; below removed, using sql-indent package in its place
 ;; (add-hook 'sql-mode-hook '(lambda()
 ;;                             (setq tab-width 4)
 ;;                             (setq indent-tabs-mode nil)))
 (setq sql-sqlite-program "sqlite3")
-(setq sql-connection-alist
-      '((fixd-redshift (sql-product 'postgres)
-                       (sql-server "redshift-cluster-1.c9hwoc0lav0f.us-east-2.redshift.amazonaws.com")
-                       (sql-port 5439)
-                       (sql-database "analytics")
-                       (sql-user "apope"))))
+
 (setq sql-send-terminator t)
+;; use extended output format when screen is too narrow
+(setq sql-postgres-options '("-P" "pager=off" "-P" "x=auto"))
+;; use ssh to connect
+;; (setq sql-default-directory "/ssh:aap:/home/apope")
+
 
 
 ;;
@@ -300,10 +310,14 @@
   (setq ein:slice-image t)
   (setq ein:completion-backend 'ein:use-ac-jedi-backend)
   ;; (setq ein:worksheet-enable-undo t) <- didn't do what i wanted
-  ;; (setq ein:polymode t) <- caused all sorts of weird shit
-  (setq ein:worksheet-enable-undo t)
+  ;; (setq ein:polymode t) ;; <- caused all sorts of weird shit
+  (setq ein:worksheet-enable-undo nil)
   ;; (ein:org-register-lang-mode "ein-python" `python)
   )
+
+;; used with ein mode
+;; from https://github.com/aaptel/preview-latex/blob/master/px.el
+(require 'px "~/.emacs.d/custom/px.el" t)
 
 ;; yaml mode
 (use-package yaml-mode
@@ -390,12 +404,20 @@
       (in-select-clause +
                         sqlind-lone-semicolon)
       (case-clause +)
+      (case-clause-item +)
       (case-clause-item-cont +)))
   (defun aap-set-sql-indent ()
     (setq sqlind-indentation-offsets-alist aap-sql-indentation-offsets-alist)
     (setq sqlind-basic-offset 4))
   :hook ((sql-mode . sqlind-minor-mode)
          (sqlind-minor-mode . aap-set-sql-indent)))
+
+(use-package rjsx-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
+  (setq js2-basic-offset 2))
+
 
 
 ;;
@@ -497,7 +519,9 @@
           :html-scale 1.5 :matchers ("begin" "\\(" "\\[")))
   (setq org-startup-indented t)
 
-  (setq org-babel-load-languages '((emacs-lisp . t) (ein . t)))
+  (setq org-babel-load-languages '((emacs-lisp . t)
+                                   (ein . t)
+                                   (sql . t)))
   
   (org-add-link-type "outlook" 'org-outlook-open)
   ;; todo types, sequences, and templates
