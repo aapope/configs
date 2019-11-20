@@ -481,6 +481,7 @@
   (setq org-hide-leading-stars t)
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-hide-emphasis-markers t)
+  (setq org-use-property-inheritance t)
 
   ;; math stuff
   ;; reminder: C-c C-x C-l turns on/off latex preview
