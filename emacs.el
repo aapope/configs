@@ -98,11 +98,18 @@
   (setq tramp-default-method "ssh"))
 
 ;; setup tramp to use ssh agent forwarding, only for the EC2 instance
-(add-to-list 'tramp-connection-properties
-             (list (regexp-quote "/ssh:fixd-analytics-root:")
-                   "login-args"
-                   '(("-A") ("-l" "%u") ("-p" "%p") ("%c")
-                     ("-e" "none") ("%h"))))
+(with-eval-after-load 'tramp (add-to-list 'tramp-connection-properties
+                                          (list (regexp-quote "/ssh:fixd-analytics-root:")
+                                                "login-args"
+                                                '(("-A") ("-l" "%u") ("-p" "%p") ("%c")
+                                                  ("-e" "none") ("%h")))))
+;; same as above, not sure if this one works better
+;; (defun add-ssh-agent-to-tramp ()
+;;   (cl-pushnew '("-A")
+;;               (cadr (assoc 'tramp-login-args
+;;                            (assoc "ssh" tramp-methods)))
+;;               :test #'equal))
+;; (add-ssh-agent-to-tramp)
 
 (when (fboundp 'winner-mode)
   (winner-mode 1))
