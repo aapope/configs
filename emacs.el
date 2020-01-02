@@ -18,7 +18,7 @@
   (package-install 'use-package))
 
 ;; static files
-(add-to-list 'load-path "~/.emacs.d/custom/")
+(load "~/.emacs.d/custom/db_connection.el")
 
 ;;
 ;; global key mappings
@@ -511,6 +511,10 @@
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-hide-emphasis-markers t)
   (setq org-use-property-inheritance t)
+
+  ;; clock stuff
+  (setq org-clock-persist 'history)
+  (org-clock-persistence-insinuate)
 
   ;; math stuff
   ;; reminder: C-c C-x C-l turns on/off latex preview
