@@ -320,6 +320,7 @@
   ;; (setq ein:polymode t) ;; <- caused all sorts of weird shit
   (setq ein:worksheet-enable-undo nil)
   ;; (ein:org-register-lang-mode "ein-python" `python)
+  (setq ein:output-area-inlined-images t)
   )
 
 ;; used with ein mode
@@ -515,6 +516,8 @@
   ;; clock stuff
   (setq org-clock-persist 'history)
   (org-clock-persistence-insinuate)
+  (setq org-clock-display-default-rante 'today)
+  (setq org-clock-mode-line-total 'today)
 
   ;; math stuff
   ;; reminder: C-c C-x C-l turns on/off latex preview
