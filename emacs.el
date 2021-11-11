@@ -9,8 +9,7 @@
 ;; add additional sources to package list
 (dolist (repo
          '(("melpa" . "http://melpa.org/packages/")
-	   ("org" . "http://orgmode.org/elpa/")
-           ("marmalade" . "https://marmalade-repo.org/packages/")))
+	   ("org" . "http://orgmode.org/elpa/")))
   (add-to-list 'package-archives repo))
 
 (unless (package-installed-p 'use-package)
@@ -249,7 +248,8 @@
 
 ;; python mode
 (add-hook 'python-mode-hook '(lambda ()
-  (local-set-key (kbd "RET") 'newline-and-indent)))
+                               (local-set-key (kbd "RET") 'newline-and-indent)))
+(setq python-shell-interpreter "/usr/local/bin/python3")
 
 ;; SQL mode
 (add-to-list 'auto-mode-alist '("\\.prc\\'" . sql-mode))
@@ -376,23 +376,23 @@
   (setq magit-completing-read-function 'magit-ido-completing-read))
 
 ;; with-editor mode
-(use-package with-editor
-  :ensure t
-  :if window-system
-  :hook ((eshell-mode . with-editor-export-editor))
-  :bind (([remap async-shell-command] . with-editor-async-shell-command)
-         ([remap shell-command] . with-editor-shell-command))
-  :config
-  ;; (add-hook 'eshell-mode-hook 'with-editor-export-editor)
-  ;; (define-key (current-global-map)
-  ;;   [remap async-shell-command] 'with-editor-async-shell-command)
-  ;; (define-key (current-global-map)
-  ;;   [remap shell-command] 'with-editor-shell-command)
-  ;; with-editor for crontab
-  (defun crontab-e ()
-    (interactive)
-    ;; requires with-editor package
-    (with-editor-async-shell-command "crontab -e")))
+;; (use-package with-editor
+;;   :ensure t
+;;   :if window-system
+;;   :hook ((eshell-mode . with-editor-export-editor))
+;;   :bind (([remap async-shell-command] . with-editor-async-shell-command)
+;;          ([remap shell-command] . with-editor-shell-command))
+;;   :config
+;;   ;; (add-hook 'eshell-mode-hook 'with-editor-export-editor)
+;;   ;; (define-key (current-global-map)
+;;   ;;   [remap async-shell-command] 'with-editor-async-shell-command)
+;;   ;; (define-key (current-global-map)
+;;   ;;   [remap shell-command] 'with-editor-shell-command)
+;;   ;; with-editor for crontab
+;;   (defun crontab-e ()
+;;     (interactive)
+;;     ;; requires with-editor package
+;;     (with-editor-async-shell-command "crontab -e")))
 
 ;; multiple cursors
 (use-package multiple-cursors
@@ -849,3 +849,14 @@
                                      "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%"))
   (global-ligature-mode t))
 
+(use-package typescript-mode
+  :ensure t
+  :config 
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode)))
+
+;; (use-package origami
+;;   :ensure t
+;;   :commands (origami-toggle-node)
+;;   :bind
+;;   (:map origami-mode-map
+;;         ("M-m -" . origami-toggle-node)))
