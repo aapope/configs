@@ -448,29 +448,41 @@
   ;; org-mode agenda files
   ;; Set protocol based on OS type
   ;; Only setup function, make emacs ask.
-  (defun org-load-files ()
-    (interactive)
-    (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
+  (if (or (eq system-type 'ms-dos) (eq system-type 'windows-nt))
+      (progn
+        (setq org-todo-files "/plink:apope@andrewapope.com:/home/apope/orgs/agenda")
+        (setq org-personal-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/personal_notes.org")
+        (setq org-work-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/work_notes.org")
+        (setq org-personal-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/personal.org")
+        (setq org-goals-file "/plink:apope@andrewapope.com:/home/apope/orgs/goals.org")
+        (setq org-ideas-file "/plink:apope@andrewapope.com:/home/apope/orgs/ideas.org")
+        (setq org-work-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/work.org")
+        (setq org-journal-file "/plink:apope@andrewapope.com:/home/apope/orgs/journal.org"))
+    (if (eq system-type 'darwin)
         (progn
-          (setq org-agenda-files '("/plink:apope@andrewapope.com:/home/apope/orgs/agenda"))
-          (setq org-personal-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/personal_notes.org")
-          (setq org-work-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/notes/work_notes.org")
-          (setq org-personal-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/personal.org")
-          (setq org-work-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/work.org"))
-      (if (eq system-type 'darwin)
-          (progn
-            ;; possibly BROKEN
-            (setq org-agenda-files '("/ssh:aap:/home/apope/orgs/agenda"))
-            (setq org-personal-notes-file "/ssh:aap:/home/apope/orgs/notes/personal_notes.org")
-            (setq org-work-notes-file "/ssh:aap:/home/apope/orgs/notes/work_notes.org")
-            (setq org-personal-agenda-file "/ssh:aap:/home/apope/orgs/agenda/personal.org")
-            (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org"))
-        ;; these are correct and have been edited for the sabbatical + contract work
-        (setq org-agenda-files '("/ssh:aap:/home/apope/orgs/agenda"))
-        (setq org-personal-notes-file "/ssh:aap:/home/apope/orgs/notes/personal_notes.org")
-        (setq org-work-notes-file "/ssh:aap:/home/apope/orgs/notes/work_notes.org")
-        (setq org-personal-agenda-file "/ssh:aap:/home/apope/orgs/agenda/personal.org")
-        (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org"))))
+          ;; possibly BROKEN
+          (setq org-todo-files "/ssh:aap:/home/apope/orgs/agenda")            
+          (setq org-personal-notes-file "/ssh:aap:/home/apope/orgs/notes/personal_notes.org")
+          (setq org-work-notes-file "/ssh:aap:/home/apope/orgs/notes/work_notes.org")
+          (setq org-personal-agenda-file "/ssh:aap:/home/apope/orgs/agenda/personal.org")
+          (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org")
+          (setq org-goals-file "/ssh:aap:/home/apope/orgs/goals.org")
+          (setq org-ideas-file "/ssh:aap:/home/apope/orgs/ideas.org")
+          (setq org-journal-file "/ssh:aap:/home/apope/orgs/journal.org"))
+      ;; these are correct and have been edited for the sabbatical + contract work
+      (setq org-todo-files "/ssh:aap:/home/apope/orgs/agenda")            
+      (setq org-personal-notes-file "/ssh:aap:/home/apope/orgs/notes/personal_notes.org")
+      (setq org-work-notes-file "/ssh:aap:/home/apope/orgs/notes/work_notes.org")
+      (setq org-personal-agenda-file "/ssh:aap:/home/apope/orgs/agenda/personal.org")
+      (setq org-goals-file "/ssh:aap:/home/apope/orgs/goals.org")
+      (setq org-journal-file "/ssh:aap:/home/apope/orgs/journal.org")
+      (setq org-ideas-file "/ssh:aap:/home/apope/orgs/ideas.org")
+      (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org")))
+  (setq org-agenda-files (list org-todo-files org-goals-file org-ideas-file))
+  (setq org-refile-targets '((org-agenda-files :maxlevel . 2)
+                             (org-work-notes-file :level . 0)
+                             (org-personal-notes-file :level . 0)))
+
   ;; reload functionality to enable mobile tasks
   ;; prepends the org agenda reload with a file revert
   (defun aap-org-agenda-reload ()
@@ -488,24 +500,24 @@
       (concat
        (make-string (* (- (org-current-level) 1) 2) ?\s)
        "- ")))
-    ;;; Support for links to Outlook items in Org
-    ;;; To find the corresponding Outlook macro (and for the source of this code), go to:
-    ;;; https://superuser.com/questions/71786/can-i-create-a-link-to-a-specific-email-message-in-outlook
-    ;;; Make sure to enable Microsoft Forms 2.0 reference for that macro!
-  (defun org-outlook-open (id)
-    "Open the Outlook item identified by ID.  ID should be an Outlook GUID."
-    (w32-shell-execute "open" "C:/Program Files/Microsoft Office/root/Office16/OUTLOOK.EXE" (concat "/select " "outlook:" id)))
-  
   :bind (("C-c l" . org-store-link)
          ("C-c a" . org-agenda)
-         ("C-c b" . org-iswitchb)
+         ;; ("C-c b" . org-iswitchb)
          ("C-c c" . org-capture))
          ;; :map org-agenda-mode-map
          ;; ("r" . aap-org-agenda-reload))
   
   :config
-  (add-hook 'org-agenda-mode-hook '(lambda ()
-                                     (local-set-key (kbd "r") 'aap-org-agenda-reload)))
+  ;; wrap the indirect buffer command with a prefix so it opens in
+  ;; a new window every time
+  (defun aap-tree-to-indirect-buffer (arg)
+    (interactive "P")
+    (let ((current-prefix-arg t))
+      (org-agenda-tree-to-indirect-buffer arg)))
+  (add-hook 'org-agenda-mode-hook (lambda ()
+                                    (define-key org-agenda-mode-map (kbd "r") 'aap-org-agenda-reload)
+                                    (define-key org-agenda-mode-map (kbd "o") 'aap-tree-to-indirect-buffer)))
+  (setq org-indirect-buffer-display 'current-window)
   (setq org-log-into-drawer t)
   (setq org-reverse-note-order nil)
   (setq org-log-state-notes-insert-after-drawers nil)
@@ -547,8 +559,55 @@
   (setq org-babel-load-languages '((emacs-lisp . t)
                                    (ein . t)
                                    (sql . t)))
+
+  ;; use a variable-width font in org modes
+  (add-hook 'org-mode-hook 'variable-pitch-mode)
+  (add-hook 'org-agenda-mode-hook 'variable-pitch-mode)
+  ;; replace the default "-" list with a nicer "•"
+  (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-*]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  (setq org-fontify-todo-headline t)
+  (let* ((variable-tuple
+          (cond ((x-list-fonts "ETBookOT")         '(:font "ETBookOT"))
+                ;; ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+                ;; ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+                ;; ((x-list-fonts "Verdana")         '(:font "Verdana"))
+                ;; ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+         (base-font-color     (face-foreground 'default nil 'default))
+         (headline           `(:inherit default :weight bold)))
+
+    (custom-theme-set-faces
+     'user
+     '(variable-pitch ((t (:family "ETBookOT" :height 180))))
+     '(org-block ((t (:inherit fixed-pitch))))
+     '(org-code ((t (:inherit (shadow fixed-pitch)))))
+     '(org-document-info ((t (:foreground "dark orange"))))
+     '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+     '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+     '(org-link ((t (:foreground "royal blue" :underline t))))
+     '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch) :height 0.8))))
+     '(org-property-value ((t (:inherit fixed-pitch))) t)
+     '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+     '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+     '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.5))))
+     '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+     '(org-headline-todo ((t (:inherit variable-pitch :height 1.0))))
+     '(org-drawer ((t (:inherit (shadow fixed-pitch) :height 0.9))))
+     '(org-checkbox ((t (:inherit fixed-pitch))))
+     `(org-agenda-structure ((t (,@headline ,@variable-tuple :height 1.3 :inherit font-lock-comment-face))))
+     `(org-level-8 ((t (,@headline ,@variable-tuple))))
+     `(org-level-7 ((t (,@headline ,@variable-tuple))))
+     `(org-level-6 ((t (,@headline ,@variable-tuple))))
+     `(org-level-5 ((t (,@headline ,@variable-tuple))))
+     `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+     `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.1))))
+     `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.25))))
+     `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.5))))
+     `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
   
-  (org-add-link-type "outlook" 'org-outlook-open)
   ;; todo types, sequences, and templates
   (setq org-todo-keywords
 	'((sequence "TODO(t!)" "|" "DONE(d!/!)")
@@ -561,14 +620,16 @@
           (sequence "IDEA(i!)" "|")
           (sequence "NEXT(n!)" "|")
           (sequence "PROJECT(p!)" "|" "DONE(d!/!)")
-          (sequence "PENDING(g!)")))
+          (sequence "PENDING(g!)")
+          (sequence "GOAL(!)" "|" "DONE(d!/!)")))
   (setq org-todo-keyword-faces
 	'(("TODO" . "orange") ("BLOCKED" . "yellow") ("CANCELED" . "green")
 	  ("DONE" . "green") ("URGENT" . "red") ("IN-QA" . "yellow")
           ("DO-QA" . "orange") ("PROJECT" . (:foreground "dark orchid" :weight bold))
           ("IDEA" . (:foreground "royal blue" :weight bold))
-          ("NEXT". "IndianRed1")
+          ("NEXT" . "IndianRed1")
           ("ONHOLD" . "yellow")
+          ("GOAL" . (:foreground "royal blue" :weight bold))
           ("PENDING" . (:foreground "deep sky blue" :weight bold))))
   (setq org-tag-alist
         '((:startgroup nil)
@@ -604,8 +665,14 @@
           ("pp" "Personal Project" entry (file org-personal-agenda-file)
            "* PROJECT %^{Project Name}%? [/] :project:\n  :PROPERTIES:\n  :CATEGORY: %\\1 \n  :END:\n  :LOGBOOK:\n  - Created\t%U\n  :END:")
           ;; unique templates
-          ("j" "Journal entry" entry (file org-personal-notes-file)
-           "* Journal Entry - %T\n  %?")))
+          ("i" "Idea" entry (file org-ideas-file)
+           "* %?  :active:\n:LOGBOOK:\n- Created\t%U\n:END:")
+          ("g" "Goal" entry (file org-goals-file)
+           "* %?  :active:\n:LOGBOOK:\n- Created\t%U\n:END:")
+          ("l" "Goal TODO" entry (file org-goals-file)
+           "* GOAL %?\n:LOGBOOK:\n- Created\t%U\n:END:")
+          ("j" "Journal entry" entry (file org-journal-file)
+           "* %T\n%?")))
   (setq org-stuck-projects
         '("/+PROJECT" ("TODO" "BLOCKED" "URGENT" "DO-QA" "NEXT") nil))
           ;; "SCHEDULED:\\|DEADLINE:"))
@@ -615,6 +682,14 @@
                              (org-agenda-files :maxlevel . 3)))
   (setq org-refile-use-outline-path 'file)
   (setq org-outline-path-complete-in-steps t)
+  (setq org-agenda-sticky t)
+  (setq org-use-speed-commands t)
+
+  (defun aap/org-agenda-prefix-string ()
+    "Format"
+    (let ((path (org-format-outline-path (org-get-outline-path)))) ; "breadcrumb" path
+      (concat " [" path "]")))
+  
   (setq org-agenda-custom-commands
         '(
           ("n" "Traditional combined view"
@@ -706,13 +781,29 @@
                      (priority-down alpha-up))))))
            ((org-agenda-tag-filter-preset '("+work"))
             (org-agenda-prefix-format " %i %-22:c ")
-            (org-agenda-dim-blocked-tasks nil)))
-          
+            (org-agenda-block-separator "")
+            (org-agenda-dim-blocked-tasks nil)
+            (org-agenda-remove-tags t)))          
           ("o" "On hold projects"
            todo "ONHOLD"
            ((org-agenda-prefix-format "  ")))
           ("d" "Completed todos scheduled in the last 14 days"
-           todo "DONE"))))
+           todo "DONE")
+          ("i" "Ideas and Goals Roundup"
+           ((tags "+idea+active"
+                  ((org-agenda-overriding-header "Active Ideas\n")
+                   (org-show-context-detail t)
+                   (org-tags-match-list-sublevels nil)))
+            (tags-todo "+goal+active"
+                       ((org-agenda-overriding-header "Active Goals\n")
+                        (org-agenda-prefix-format "%(aap/org-agenda-prefix-string)    ")))
+            (tags "+goal+active"
+                  ((org-agenda-overriding-header "Long-Term Goals\n")
+                   (org-tags-match-list-sublevels nil))))
+           ((org-agenda-block-separator "")
+            (org-agenda-remove-tags t)
+            (org-agenda-prefix-format "    ")))))
+  )
 
 (use-package org-bullets
   :ensure t
@@ -860,3 +951,31 @@
 ;;   :bind
 ;;   (:map origami-mode-map
 ;;         ("M-m -" . origami-toggle-node)))
+
+
+;; Enable nice rendering of diagnostics like compile errors.
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
+
+(use-package crux
+  :ensure t
+  :bind (("C-c n" . crux-cleanup-buffer-or-region)
+         ("C-c f" . crux-recentf-find-file)
+         ("C-k" . crux-smart-kill-line)
+         ("C-c D" . crux-delete-file-and-buffer)
+         ("C-c r" . crux-rename-file-and-buffer)
+         ("C-c S" . crux-find-shell-init-file)))
+
+(use-package avy
+  :ensure t
+  :bind (("C-'" . avy-goto-char)))
+
+(use-package git-timemachine
+  :ensure t)
+
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode))
