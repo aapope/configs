@@ -9,7 +9,8 @@
 ;; add additional sources to package list
 (dolist (repo
          '(("melpa" . "http://melpa.org/packages/")
-	   ("org" . "http://orgmode.org/elpa/")))
+	   ("gnu" . "https://elpa.gnu.org/packages/")
+           ("non-gnu" . "https://elpa.nongnu.org/nongnu/")))
   (add-to-list 'package-archives repo))
 
 (unless (package-installed-p 'use-package)
@@ -275,14 +276,14 @@
 ;; (use-package ido
 ;;   :ensure t
 ;;   :config
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(setq ido-file-extension-order '(".py", ".txt", ".org"))
-(ido-mode t)
-; )
+;; (setq ido-enable-flex-matching t)
+;; (setq ido-everywhere t)
+;; (setq ido-file-extension-order '(".py", ".txt", ".org"))
+;; (ido-mode t)
+;; ; )
 
-(use-package ido-completing-read+
-  :ensure t)
+;; (use-package ido-completing-read+
+;;   :ensure t)
 
 ;; ace window
 (use-package ace-window
@@ -345,7 +346,11 @@
   :ensure t
   :mode "\\.md\\'"
   :config
-  (setq markdown-command "/usr/bin/pandoc")
+  ;; (setq markdown-command "/usr/bin/pandoc")
+  (add-hook 'markdown-mode-hook (lambda ()
+                            (setq buffer-face-mode-face '(:family "ETBookOT" :height 180))
+                            (buffer-face-mode)))
+  (setq markdown-command "/opt/homebrew/bin/pandoc")
   (setq markdown-header-scaling t))
 
 ;; mmm
@@ -368,12 +373,12 @@
 ;; magit
 (use-package magit
   :ensure t
-  :after (ido ido-completing-read+)
+  ;; :after (ido ido-completing-read+)
   :bind (("C-x g" . magit-status)
          ("C-x M-g" . magit-dispatch-popup))
   :config
-  (setq magit-auto-revert-mode nil)
-  (setq magit-completing-read-function 'magit-ido-completing-read))
+  (setq magit-auto-revert-mode nil))
+  ;; (setq magit-completing-read-function 'magit-ido-completing-read))
 
 ;; with-editor mode
 ;; (use-package with-editor
@@ -424,6 +429,9 @@
   (defun aap-set-sql-indent ()
     (setq sqlind-indentation-offsets-alist aap-sql-indentation-offsets-alist)
     (setq sqlind-basic-offset 4))
+  ;; (setq sqlind-comment-start-skip "\\(--+\\|/\\*+\\|{{\\|{#\\|{%\\)\\s *")
+  ;; (setq sqlind-comment-end "\\*+/\\|}}\\|#}\\|%}")
+  ;; (setq sqlind-comment-prefix "\\*+\\s ")
   :hook ((sql-mode . sqlind-minor-mode)
          (sqlind-minor-mode . aap-set-sql-indent)))
 
@@ -457,7 +465,8 @@
         (setq org-goals-file "/plink:apope@andrewapope.com:/home/apope/orgs/goals.org")
         (setq org-ideas-file "/plink:apope@andrewapope.com:/home/apope/orgs/ideas.org")
         (setq org-work-agenda-file "/plink:apope@andrewapope.com:/home/apope/orgs/agenda/work.org")
-        (setq org-journal-file "/plink:apope@andrewapope.com:/home/apope/orgs/journal.org"))
+        (setq org-journal-file "/plink:apope@andrewapope.com:/home/apope/orgs/journal.org")
+        (setq org-tea-notes-file "/plink:apope@andrewapope.com:/home/apope/orgs/tea_journal.org"))
     (if (eq system-type 'darwin)
         (progn
           ;; possibly BROKEN
@@ -468,7 +477,8 @@
           (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org")
           (setq org-goals-file "/ssh:aap:/home/apope/orgs/goals.org")
           (setq org-ideas-file "/ssh:aap:/home/apope/orgs/ideas.org")
-          (setq org-journal-file "/ssh:aap:/home/apope/orgs/journal.org"))
+          (setq org-journal-file "/ssh:aap:/home/apope/orgs/journal.org")
+          (setq org-tea-notes-file "/ssh:aap:/home/apope/orgs/tea_journal.org"))
       ;; these are correct and have been edited for the sabbatical + contract work
       (setq org-todo-files "/ssh:aap:/home/apope/orgs/agenda")            
       (setq org-personal-notes-file "/ssh:aap:/home/apope/orgs/notes/personal_notes.org")
@@ -477,7 +487,8 @@
       (setq org-goals-file "/ssh:aap:/home/apope/orgs/goals.org")
       (setq org-journal-file "/ssh:aap:/home/apope/orgs/journal.org")
       (setq org-ideas-file "/ssh:aap:/home/apope/orgs/ideas.org")
-      (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org")))
+      (setq org-work-agenda-file "/ssh:aap:/home/apope/orgs/agenda/work.org")
+      (setq org-tea-notes-file "/ssh:aap:/home/apope/orgs/tea_journal.org")))
   (setq org-agenda-files (list org-todo-files org-goals-file org-ideas-file))
   (setq org-refile-targets '((org-agenda-files :maxlevel . 2)
                              (org-work-notes-file :level . 0)
@@ -525,12 +536,13 @@
   (setq org-enforce-todo-dependencies t)
   (setq org-special-ctrl-a/e t)
   (setq org-special-ctrl-k t)
-  (setq org-completion-use-ido t)
+  (setq org-completion-use-ido nil)
   (setq org-return-follows-link t)
   (setq org-hide-leading-stars t)
   (setq org-agenda-dim-blocked-tasks nil)
   (setq org-hide-emphasis-markers t)
   (setq org-use-property-inheritance t)
+  (setq org-outline-path-complete-in-steps nil)
 
   ;; clock stuff
   (setq org-clock-persist 'history)
@@ -595,19 +607,21 @@
      '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.5))))
      '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
      '(org-headline-todo ((t (:inherit variable-pitch :height 1.0))))
+     '(org-headline-done ((t (:inherit variable-pitch :height 1.0))))
+     '(org-todo ((t (:inherit variable-pitch :height 0.85))))
      '(org-drawer ((t (:inherit (shadow fixed-pitch) :height 0.9))))
      '(org-checkbox ((t (:inherit fixed-pitch))))
      `(org-agenda-structure ((t (,@headline ,@variable-tuple :height 1.3 :inherit font-lock-comment-face))))
-     `(org-level-8 ((t (,@headline ,@variable-tuple))))
-     `(org-level-7 ((t (,@headline ,@variable-tuple))))
-     `(org-level-6 ((t (,@headline ,@variable-tuple))))
-     `(org-level-5 ((t (,@headline ,@variable-tuple))))
-     `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
-     `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.1))))
+     `(org-level-8 ((t (,@headline ,@variable-tuple :height 1.0))))
+     `(org-level-7 ((t (,@headline ,@variable-tuple :height 1.0))))
+     `(org-level-6 ((t (,@headline ,@variable-tuple :height 1.0))))
+     `(org-level-5 ((t (,@headline ,@variable-tuple :height 1.0))))
+     `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.15))))
+     `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.15))))
      `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.25))))
      `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.5))))
      `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
-  
+
   ;; todo types, sequences, and templates
   (setq org-todo-keywords
 	'((sequence "TODO(t!)" "|" "DONE(d!/!)")
@@ -633,12 +647,16 @@
           ("PENDING" . (:foreground "deep sky blue" :weight bold))))
   (setq org-tag-alist
         '((:startgroup nil)
-          ("reading" . ?r) ("lecture" . ?l) ("problem" . ?p) ("writing" . ?w)
+          ("work" . ?w) ("personal" . ?p)
+          (:endgroup nil)
+          (:startgroup nil)
+          ("reading" . ?r) ("lecture" . ?l) ("problem" . ?p) ("writing" . ?t)
           ("exercise" . ?e) ("admin" . ?a)
           (:endgroup nil)
           (:startgroup nil)
           ("data" . ?d) ("science" . ?s) ("philosophy" . ?y) ("social" . ?c)
-          (:endgroup nil)))
+          (:endgroup nil)
+          ("inactive" . ?i)))
   (setq org-capture-templates
         '(;; work templates
           ("w" "Work templates")
@@ -672,16 +690,17 @@
           ("l" "Goal TODO" entry (file org-goals-file)
            "* GOAL %?\n:LOGBOOK:\n- Created\t%U\n:END:")
           ("j" "Journal entry" entry (file org-journal-file)
-           "* %T\n%?")))
+           "* %T\n%?")
+          ("t" "Tea Journal entry" entry (file org-tea-notes-file)
+           "* %^{Vendor} - %^{Tea name and year} tea notes\n  :LOGBOOK:\n  - Created\t%U\n  :END:\n  - %?")))
   (setq org-stuck-projects
         '("/+PROJECT" ("TODO" "BLOCKED" "URGENT" "DO-QA" "NEXT") nil))
           ;; "SCHEDULED:\\|DEADLINE:"))
   (setq org-hierarchical-todo-statistics t)
-  (setq org-completion-use-ido t)
+  ;; (setq org-completion-use-ido t)
   (setq org-refile-targets '((nil :maxlevel . 3)
                              (org-agenda-files :maxlevel . 3)))
   (setq org-refile-use-outline-path 'file)
-  (setq org-outline-path-complete-in-steps t)
   (setq org-agenda-sticky t)
   (setq org-use-speed-commands t)
 
@@ -779,11 +798,11 @@
                    (org-agenda-sorting-strategy
                     (quote
                      (priority-down alpha-up))))))
-           ((org-agenda-tag-filter-preset '("+work"))
+           ((org-agenda-tag-filter-preset '("+work" "-inactive"))
             (org-agenda-prefix-format " %i %-22:c ")
             (org-agenda-block-separator "")
             (org-agenda-dim-blocked-tasks nil)
-            (org-agenda-remove-tags t)))          
+            (org-agenda-remove-tags t)))
           ("o" "On hold projects"
            todo "ONHOLD"
            ((org-agenda-prefix-format "  ")))
@@ -803,7 +822,7 @@
            ((org-agenda-block-separator "")
             (org-agenda-remove-tags t)
             (org-agenda-prefix-format "    ")))))
-  )
+)
 
 (use-package org-bullets
   :ensure t
@@ -954,9 +973,9 @@
 
 
 ;; Enable nice rendering of diagnostics like compile errors.
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode))
+;; (use-package flycheck
+;;   :ensure t
+;;   :init (global-flycheck-mode))
 
 
 (use-package crux
@@ -979,3 +998,28 @@
   :ensure t
   :config
   (which-key-mode))
+
+(use-package helm
+  :ensure t
+  :bind (("C-c h" . helm-command-prefix)
+         ("C-x C-f" . helm-find-files)
+         ("M-x" . helm-M-x)
+         (:map helm-map
+               ("<tab>" . helm-execute-persistent-action)
+               ("C-i" . helm-execute-persistent-action)
+               ("C-z" . helm-select-action)))
+  :config
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t))
+  
+  (setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
+        helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+        helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+        helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+        helm-ff-file-name-history-use-recentf t
+        helm-echo-input-in-header-line t)
+  (setq helm-autoresize-max-height 0)
+  (setq helm-autoresize-min-height 20)
+  (helm-autoresize-mode 1)
+  (helm-mode 1))
+  
